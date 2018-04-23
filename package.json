@@ -1,0 +1,23 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "a todo-app for my personal use",
+  "main": "index.js",
+  "author": "Jane Jeon",
+  "license": "Apache2",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "connect-redis": "^3.3.3",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "mongodb": "^3.0.7",
+    "redis": "^2.8.0"
+  },
+  "engines": {
+    "node": "9.11.1"
+  },
+  "scripts": {
+    "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 index.js"
+  }
+}
