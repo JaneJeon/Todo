@@ -1,15 +1,5 @@
-const winston = require('winston')
+const log = require('debug')('app:error')
 
-module.exports = new winston.Logger({
-    transports: [
-        new winston.transports.Console({
-            timestamp: true,
-            handleExceptions: true,
-            humanReadableUnhandledException: true,
-            json: false,
-            showLevel: false,
-            level: 'error'
-        })
-    ],
-    exitOnError: false
-})
+module.exports = process.env.NODE_ENV == 'production'
+    ? err => log(err.toString())
+    : err => log(err.stack)
