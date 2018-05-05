@@ -25,13 +25,16 @@
         "morgan": "^1.9.0",
         "passport": "^0.4.0",
         "passport-local": "^1.0.0",
-        "redis": "^2.8.0"
+        "passport-local-mongoose": "^5.0.0",
+        "redis": "^2.8.0",
+        "validator": "^9.4.1"
     },
     "devDependencies": {
         "mocha": "^5.1.1",
         "supports-color": "^5.4.0"
     },
     "scripts": {
-        "start": "pm2 start app.js -i max --node-args='node --optimize_for_size --max_old_space_size=460 --gc_interval=100'"
+        "start": "pm2 start app.js -i max --node-args='node --optimize_for_size --max_old_space_size=460 --gc_interval=100'",
+        "test": "mocha --bail"
     }
 }
