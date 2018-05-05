@@ -11,17 +11,14 @@ const express    = require('express'),
       path       = require('path'),
       session    = require('express-session'),
       RedisStore = require('connect-redis')(session),
+      middleware = require('./lib/middleware'),
+      template   = require('./lib/template'),
       User       = require('./models/user'),
-      _          = require('lodash')
+      _          = require('lodash/object')
 
 /*---------- logging ----------*/
-morgan.token('sessId', req => {
-    return req.sessionID
-})
-
-morgan.token('userId', req => {
-    return _.get(req, 'user._id')
-})
+morgan.token('sessId', req => req.sessionID)
+morgan.token('userId', req => _.get(req, 'user._id'))
 
 const format =
     ':method :url ":req[content-type]" :req[content-length] ' +
@@ -33,21 +30,8 @@ if (process.env.NODE_ENV != 'production')
     app.use(morgan(format, {stream: {write: msg => log(msg.slice(0, -1))}}))
 
 /*---------- templating ----------*/
+hbs.registerHelper('auto', template.getTitle)
 hbs.registerPartials(path.join(__dirname, 'views/partials'))
-
-// if the body partial is a string, automatically set the title to that
-hbs.registerHelper('titler', (title, body) => {
-    return isNaN(body) ? _.startCase(body) : title
-})
-
-// automatically append the extension path for static files
-hbs.registerHelper('static', (file, ext) => {
-    if (ext) file += `.${ext}`
-    
-    return file
-        ? `/${ext || 'assets'}/${file}`
-        : ''
-})
 
 /*---------- authentication ----------*/
 passport.use(User.createStrategy())
@@ -78,19 +62,24 @@ app /*---------- middlewares ----------*/
     .use(express.static(path.join(__dirname, 'public')))
     .set('views', path.join(__dirname, 'views'))
     .set('view engine', 'hbs')
+    /*---------- monkey patching ----------*/
+    .use((req, res, next) => {
+        res.page = obj => res.render('template', middleware.link(obj))
+        next()
+    })
     /*---------- routes ----------*/
     .use('/', require('./routes/index'))
     /*---------- route error handler ----------*/
-    .use('*', (req, res) => {
+    .use('*', (req, res) =>
         // do not pass to application error handler,
         // since that's reserved for uncaught Exceptions only
-        res.status(404).render('base', {title: 'Page Not Found', body: '404'})
-    })
+        res.status(404).page({title: 'Page Not Found', body: '404'})
+    )
     /*---------- application error handler ----------*/
     // need all 4 params to be recognized as error handler
     .use((err, req, res, next) => {
         error(err.stack)
-        res.status(500).render('base', {title: 'Internal Server Error', body: '500'})
+        res.status(500).page({title: 'Internal Server Error', body: '500'})
     })
 
 const server = app.listen(process.env.PORT, async err => {

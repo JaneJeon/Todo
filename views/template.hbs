@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>{{{titler title body}}}</title>
+	<title>{{{auto title body}}}</title>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-	<link rel='stylesheet' href='{{{static css 'css'}}}'>
+	<link rel='stylesheet' href='{{{css}}}'>
 </head>
 <body class='{{{bodyClass}}}'>
-	{{>(lookup . 'body')}}
+	{{>(lookup . 'body') js=js}}
 </body>
 </html>
