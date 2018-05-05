@@ -7,7 +7,7 @@
         if (!validator.isLength(username, {min: minUsername, max: maxUsername}))
             return `Username must be between ${minUsername} and ${maxUsername} characters long`
         if (!validator.isAlphanumeric(username))
-            return 'Username must contain numbers and alphabets only'
+            return 'Username must contain alphanumeric characters only'
         if (!validator.isLength(password, {min: minPassword, max: maxPassword}))
             return `Password must be between ${minPassword} and ${maxPassword} characters long`
         if (!validator.isEmail(email))

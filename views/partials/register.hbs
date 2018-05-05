@@ -1,25 +1,31 @@
 <form action='/register' method='post'>
     <h1 class='h3 mb-3 font-weight-normal'>Create an account</h1>
-	<input type='text' class='form-control' id='username' name='username' aria-describedby="usernameHelp" placeholder='Username' autofocus data-toggle='tooltip' data-placement='right' title='You can change your username later. 5~20 characters long, alphanumeric only.'>
-    <input type='password' class='form-control' id='password' name='password' placeholder='Password' data-toggle='tooltip' data-placement='right' title='At least 8 characters long; max 30'>
+	<input type='text' class='form-control' name='username' placeholder='Username' autofocus data-toggle='tooltip' data-placement='right' title='You can change your username later. 5~20 characters long, alphanumeric only.'>
+    <input type='password' class='form-control' name='password' placeholder='Password' data-toggle='tooltip' data-placement='right' title='At least 8 characters long; max 30'>
+    <input type='email' class='form-control' name='email' placeholder='Email' data-toggle='tooltip' data-placement='right' title='A valid email address (for password reset only)'>
     <button type='submit' class='btn btn-lg btn-primary btn-block'>Register</button>
+    <p class='mt-4'>
+        <a class='text-muted' href='/login'>Already have an account? Login!</a>
+    </p>
 </form>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<script src='/js/validator.9.4.1.min.js'></script>
+<script src='/js/validator.min.js'></script>
 <script src='/js/input.js'></script>
 <script>
     $(function() {
         $('[data-toggle="tooltip"]').tooltip()
+        
         // client-side validation
-        $(form).submit(function(e) {
+        $('form').submit(function(e) {
             if (error = input.validate(
                 $(this).find("input[type='text']").val(), 
                 $(this).find("input[type='password']").val(),
-                'test@example.com')) {
+                $(this).find("input[type='email']").val()
+            )) {
                 alert(error)
-                return false
+                e.preventDefault()
             }
         })
     })

@@ -1,6 +1,5 @@
 const express    = require('express'),
       app        = express(),
-      assert     = require('assert'),
       bodyParser = require('body-parser'),
       debug      = require('debug'),
       error      = debug('error'),
@@ -21,7 +20,7 @@ morgan.token('sessId', req => {
 })
 
 morgan.token('userId', req => {
-    return req.user ? req.user._id : '-'
+    return _.get(req, 'user._id')
 })
 
 const format =
@@ -96,6 +95,6 @@ app /*---------- middlewares ----------*/
 
 const server = app.listen(process.env.PORT, async err => {
     await mongo
-    assert.equal(err, null)
+    require('assert').equal(err, null)
     debug('server')(`running on port ${server.address().port}`)
 })
