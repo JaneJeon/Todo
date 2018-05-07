@@ -72,13 +72,14 @@ app /*---------- middlewares ----------*/
     })
 
 const server = app.listen(process.env.PORT, async err => {
-    require('assert').equal(err, null)
     try {
+        require('assert').equal(err, null)
         await dbPromise
     } catch (err) {
         log.error(err)
         process.exit(1)
     }
+    
     debug('server')(`running on port ${server.address().port}`)
     debug('server')(`started in ${Date.now() - start} ms`)
 })

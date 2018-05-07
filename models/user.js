@@ -31,6 +31,7 @@ module.exports = db =>
         },
         email: {
             type: Sequelize.STRING,
+            unique: true,
             set(email) {
                 this.setDataValue('email', validator.normalizeEmail(email))
             }
