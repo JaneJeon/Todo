@@ -1,50 +1,40 @@
-const router    = require('express').Router(),
-      passport  = require('passport'),
-      input     = require('../lib/input'),
-      User      = require('../models/user')
-      validator = require('validator')
+const router   = require('express').Router(),
+      passport = require('passport'),
+      user     = require('../lib/user-validate')
 
 router.get('/', (req, res) =>
-    req.user ? res.page({body: 'welcome'}) : res.redirect('/login')
+    req.isAuthenticated() ? res.page({body: 'welcome'}) : res.redirect('/login')
 )
 
-router.get('/register', (req, res) =>
-    res.page({css: 'account-form', js: 'input', body: 'register', bodyClass: 'text-center'})
-)
-
-// TODO: take in user email into the User model
-// TODO: remember me
-// TODO: lowercase username & canonical (cased) version for showing
-router.post('/register', (req, res, next) => {
-    const username = req.body.username,
-          password = req.body.password,
-          email = req.body.email
-    
-    // validate first
-    if (input.validate(username + '', password + '', email + ''))
-        return res.end()
-    
-    // then try to register
-    User.register(
-        new User({username: validator.trim(username)}), 
-        password,
-        err => {
-            if (err) res.json({error: 'Username is already taken'})
-            
-            // automatically login the user
-            passport.authenticate('local')(req, res, () => {
-                res.redirect('/')
-            })
-        }
-    )
+router.get('/register', (req, res) => {
+    if (req.isAuthenticated()) return res.redirect('/')
+    res.page({css: 'user-form', js: 'user-validate', body: 'register', bodyClass: 'text-center'})
 })
 
-router.get('/login', (req, res) =>
-    res.page({css: 'account-form', body: 'login', bodyClass: 'text-center'})
-)
+router.post('/register', async (req, res, next) => {
+    const body = req.body
+    
+    // validate first
+    if (user.validate(body.username + '', body.password + '', body.email + ''))
+        return res.end()
+    
+    // then check if username is taken
+    if (await User.find({where: {username: body.username}}))
+        return res.json({message: 'Username is already taken'})
+    
+    // then create account and automatically log them in
+    await User.create(body)
+    passport.authenticate('local')(req, res, () => res.redirect('/'))
+})
 
-router.post('/login', passport.authenticate('local'), (req, res) =>
-    res.redirect('/')
+router.get('/login', (req, res) => {
+    if (req.isAuthenticated()) return res.redirect('/')
+    res.page({css: 'user-form', body: 'login', bodyClass: 'text-center'})
+})
+
+router.post('/login', 
+    passport.authenticate('local', {failureRedirect: '/login'}), 
+    (req, res) => res.redirect('/')
 )
 
 router.get('/logout', (req, res) => {

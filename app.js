@@ -1,42 +1,31 @@
-const express    = require('express'),
+const start      = Date.now(),
+      express    = require('express'),
       app        = express(),
       bodyParser = require('body-parser'),
       debug      = require('debug'),
-      error      = debug('error'),
       hbs        = require('hbs'),
-      log        = debug('http'),
-      mongo      = require('mongoose').connect(process.env.MONGODB_URI),
-      morgan     = require('morgan')
       passport   = require('passport'),
       path       = require('path'),
       session    = require('express-session'),
       RedisStore = require('connect-redis')(session),
+      log        = require('./lib/logger'),
       middleware = require('./lib/middleware'),
-      template   = require('./lib/template'),
-      User       = require('./models/user'),
-      _          = require('lodash/object')
+      template   = require('./lib/template')
+      Sequelize  = require('sequelize-hierarchy')()
+      validator  = require('validator')
+const dbPromise  = require('./lib/db')()
 
 /*---------- logging ----------*/
-morgan.token('sessId', req => req.sessionID)
-morgan.token('userId', req => _.get(req, 'user._id'))
-
-const format =
-    ':method :url ":req[content-type]" :req[content-length] ' +
-    'res: :status :res[content-length] :response-time[0]ms ' +
-    'by: :userId :sessId :remote-addr :remote-user :referrer ":user-agent"'
-
 // heroku already comes with HTTP logger
 if (process.env.NODE_ENV != 'production')
-    app.use(morgan(format, {stream: {write: msg => log(msg.slice(0, -1))}}))
+    app.use(log.http)
 
 /*---------- templating ----------*/
 hbs.registerHelper('auto', template.getTitle)
 hbs.registerPartials(path.join(__dirname, 'views/partials'))
 
 /*---------- authentication ----------*/
-passport.use(User.createStrategy())
-passport.serializeUser(User.serializeUser())
-passport.deserializeUser(User.deserializeUser())
+require('./lib/passport')()
 
 app /*---------- middlewares ----------*/
     .use(require('helmet')())
@@ -78,12 +67,13 @@ app /*---------- middlewares ----------*/
     /*---------- application error handler ----------*/
     // need all 4 params to be recognized as error handler
     .use((err, req, res, next) => {
-        error(err.stack)
+        log.error(err)
         res.status(500).page({title: 'Internal Server Error', body: '500'})
     })
 
 const server = app.listen(process.env.PORT, async err => {
-    await mongo
     require('assert').equal(err, null)
+    await dbPromise
     debug('server')(`running on port ${server.address().port}`)
+    debug('server')(`started in ${Date.now() - start} ms`)
 })
