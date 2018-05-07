@@ -6,6 +6,7 @@ module.exports = db =>
             autoIncrement: true
         },
         name: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false
         }
     })

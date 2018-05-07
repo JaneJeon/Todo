@@ -32,6 +32,7 @@ app /*---------- middlewares ----------*/
     .use(require('cors')())
     .use(bodyParser.json()) // AJAX requests
     .use(bodyParser.urlencoded({extended: false})) // HTTP requests
+    .use(require('cookie-parser')(process.env.SECRET)) // literally just for flash messages
     .use(session({
         name: 'sessionId',
         store: new RedisStore({
@@ -45,6 +46,7 @@ app /*---------- middlewares ----------*/
             httpOnly: true // for security
         }
     }))
+    .use(require('connect-flash')())
     .use(passport.initialize())
     .use(passport.session())
     /*---------- views ----------*/
@@ -53,7 +55,8 @@ app /*---------- middlewares ----------*/
     .set('view engine', 'hbs')
     /*---------- monkey patching ----------*/
     .use((req, res, next) => {
-        res.page = obj => res.render('template', middleware.link(obj))
+        if (!middleware.normalize(req.body)) return res.end()
+        res.page = obj => res.render('template', middleware.link(obj, req))
         next()
     })
     /*---------- routes ----------*/

@@ -17,24 +17,21 @@ module.exports = db =>
         username: {
             type: Sequelize.STRING,
             unique: true,
-            set(name) {
-                this.setDataValue('username', name.toLowerCase())
-                this.setDataValue('name', name)
-            }
+            allowNull: false
         },
         // the full-case username; this is what the user sees
         name: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false
         },
         password: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false
         },
         email: {
             type: Sequelize.STRING,
             unique: true,
-            set(email) {
-                this.setDataValue('email', validator.normalizeEmail(email))
-            }
+            allowNull: false
         }
     }, {
         hooks: {

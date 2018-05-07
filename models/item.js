@@ -6,7 +6,8 @@ module.exports = db =>
             autoIncrement: true
         },
         body: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            allowNull: false
         },
         description: {
             type: Sequelize.TEXT

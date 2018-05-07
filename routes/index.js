@@ -12,18 +12,14 @@ router.get('/register', (req, res) => {
 })
 
 router.post('/register', async (req, res, next) => {
-    const body = req.body
+    try {
+        await User.create(req.body)
+    } catch (err) {
+        req.flash('error', err.toString())
+        return res.redirect('/register')
+    }
     
-    // validate first
-    if (user.validate(body.username + '', body.password + '', body.email + ''))
-        return res.end()
-    
-    // then check if username is taken
-    if (await User.find({where: {username: body.username}}))
-        return res.json({message: 'Username is already taken'})
-    
-    // then create account and automatically log them in
-    await User.create(body)
+    // automatically log in the user if account creation succeeded
     passport.authenticate('local')(req, res, () => res.redirect('/'))
 })
 
@@ -32,9 +28,11 @@ router.get('/login', (req, res) => {
     res.page({css: 'user-form', body: 'login', bodyClass: 'text-center'})
 })
 
-router.post('/login', 
-    passport.authenticate('local', {failureRedirect: '/login'}), (req, res) => res.redirect('/')
-)
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/register',
+    failureFlash: true
+}))
 
 router.get('/logout', (req, res) => {
     req.logout()
