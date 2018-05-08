@@ -54,6 +54,7 @@ app /*---------- middlewares ----------*/
     /*---------- monkey patching ----------*/
     .use((req, res, next) => {
         if (!middleware.normalize(req.body)) return res.end()
+        res.page = (page, obj) => res.render(page, middleware.link(req, obj))
         next()
     })
     /*---------- routes ----------*/
@@ -62,13 +63,13 @@ app /*---------- middlewares ----------*/
     .use('*', (req, res) =>
         // do not pass to application error handler,
         // since that's reserved for uncaught Exceptions only
-        res.status(404).render('404')
+        res.status(404).page('404')
     )
     /*---------- application error handler ----------*/
     // need all 4 params to be recognized as error handler
     .use((err, req, res, next) => {
         log.error(err)
-        res.status(500).render('500')
+        res.status(500).page('500')
     })
 
 const server = app.listen(process.env.PORT, async err => {

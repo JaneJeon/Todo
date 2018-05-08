@@ -3,12 +3,12 @@ const router   = require('express').Router(),
       user     = require('../lib/user-validate')
 
 router.get('/', (req, res) =>
-    req.isAuthenticated() ? res.render('welcome') : res.redirect('/login')
+    req.isAuthenticated() ? res.page('welcome') : res.redirect('/login')
 )
 
 router.get('/register', (req, res) => {
     if (req.isAuthenticated()) return res.redirect('/')
-    res.render('register')
+    res.page('register')
 })
 
 router.post('/register', async (req, res, next) => {
@@ -25,13 +25,13 @@ router.post('/register', async (req, res, next) => {
 
 router.get('/login', (req, res) => {
     if (req.isAuthenticated()) return res.redirect('/')
-    res.render('login')
+    res.page('login')
 })
 
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/register',
-    failureFlash: true
+    failureFlash: 'Username and/or password does not match'
 }))
 
 router.get('/logout', (req, res) => {

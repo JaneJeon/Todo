@@ -4,37 +4,16 @@ const assert     = require('assert'),
 
 describe('middleware', () => {
     describe('#link()', () => {
-        it('should ignore non-static files', () => {
-            const obj = () => ({
-                title: 'title',
-                body: 'body',
-                foo: 'bar'
-            })
-            
-            assert.deepEqual(middleware.link(obj()), obj())
-        })
+        const message = 'Hóla!',
+              req     = () => ({flash: () => message})
         
-        it('should resolve css/js files', () => {
-            const obj = {
-                title: 'title',
-                css: 'account-form',
-                js: 'input',
-                foo: 'bar'
-            },
-            expected = {
-                title: 'title',
-                css: '/css/account-form.css',
-                js: '/js/input.js',
-                foo: 'bar'
-            }
-            
-            assert.deepEqual(middleware.link(obj), expected)
-        })
+        it('should append error message', () =>
+            assert.equal(middleware.link(req(), {}).error, message)
+        )
         
-        it('should append error message', () => {
-            const message = 'Hóla!'
-            
-            assert.equal(middleware.link({}, {flash: () => message}).error, message)
+        it('should deal with empty input', () => {
+            assert.equal(middleware.link(req(), null).error, message)
+            assert.equal(middleware.link(req(), undefined).error, message)
         })
     })
     
