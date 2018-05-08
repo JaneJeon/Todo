@@ -1,0 +1,10 @@
+{{>base_header title='Register' css='/css/user-form.css'}}
+{{>form_header action='register' text='Create an account'}}
+	<input type='text' class='form-control' name='username' placeholder='Username' data-toggle='tooltip' data-placement='right' title='You can change your username later. 5~20 characters long, alphanumeric only.' autofocus required>
+    <input type='password' class='form-control' name='password' placeholder='Password' data-toggle='tooltip' data-placement='right' title='At least 8 characters long; max 30' required>
+    <input type='email' class='form-control' name='email' placeholder='Email' data-toggle='tooltip' data-placement='right' title='A valid email address (for password reset only)' required>
+	{{>button_submit text='Register'}}
+{{>form_footer href='login' text='Already have an account? Login!'}}
+{{>form_scripts}}
+<script>$(function() {$('[data-toggle="tooltip"]').tooltip()})</script>
+{{>base_footer error=error}}

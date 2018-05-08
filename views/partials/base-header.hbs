@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>{{auto title body}}</title>
+	<title>{{title}}</title>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-	<link rel='stylesheet' href='{{{css}}}'>
+	{{#if css}}<link rel='stylesheet' href='{{{css}}}'>{{/if}}
 </head>
-<body class='{{{bodyClass}}}'>
-	{{> (lookup . 'body') js=js}}
-</body>
-</html>
+<body>

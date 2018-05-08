@@ -9,8 +9,7 @@ const start      = Date.now(),
       session    = require('express-session'),
       RedisStore = require('connect-redis')(session),
       log        = require('./lib/logger'),
-      middleware = require('./lib/middleware'),
-      template   = require('./lib/template')
+      middleware = require('./lib/middleware')
       Sequelize  = require('sequelize-hierarchy')()
       validator  = require('validator')
 const dbPromise  = require('./lib/db')()
@@ -21,7 +20,6 @@ if (process.env.NODE_ENV != 'production')
     app.use(log.http)
 
 /*---------- templating ----------*/
-hbs.registerHelper('auto', template.getTitle)
 hbs.registerPartials(path.join(__dirname, 'views/partials'))
 
 /*---------- authentication ----------*/
@@ -56,7 +54,6 @@ app /*---------- middlewares ----------*/
     /*---------- monkey patching ----------*/
     .use((req, res, next) => {
         if (!middleware.normalize(req.body)) return res.end()
-        res.page = obj => res.render('template', middleware.link(obj, req))
         next()
     })
     /*---------- routes ----------*/
@@ -65,13 +62,13 @@ app /*---------- middlewares ----------*/
     .use('*', (req, res) =>
         // do not pass to application error handler,
         // since that's reserved for uncaught Exceptions only
-        res.status(404).page({title: 'Page Not Found', body: '404'})
+        res.status(404).render('404')
     )
     /*---------- application error handler ----------*/
     // need all 4 params to be recognized as error handler
     .use((err, req, res, next) => {
         log.error(err)
-        res.status(500).page({title: 'Internal Server Error', body: '500'})
+        res.status(500).render('500')
     })
 
 const server = app.listen(process.env.PORT, async err => {
