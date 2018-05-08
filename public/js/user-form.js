@@ -3,7 +3,7 @@ $(function() {
     $('form').submit(function(e) {
         $(this).find('input').each(function() {
             if (error = user[`validate${_.capitalize($(this).attr('name'))}`]($(this).val())) {
-                alert(error)
+                swal(error)
                 e.preventDefault()
             }
         })
