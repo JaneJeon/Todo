@@ -1,5 +1,6 @@
 const router = require('express').Router(),
-	passport = require('passport')
+	passport = require('passport'),
+	{ get, capitalize } = require('lodash')
 
 router.get(
 	'/',
@@ -12,16 +13,23 @@ router.get('/register', (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
+	let user
+
 	try {
-		await User.create(req.body)
+		user = await User.create(req.body)
 	} catch (err) {
+		console.error(JSON.stringify(err))
+		if (get(err, 'errors[0].type') === 'unique violation') {
+			req.flash('error', `${capitalize(err.errors[0].path)} is already taken`)
+			return res.redirect('/register')
+		}
+
 		return res.json({})
-		// TODO: separately catch username/email already taken error
 		// TODO: throw error again for logging purposes?
 	}
 
 	// automatically log in the user once the account is created
-	passport.authenticate('local')(req, res, () => res.redirect('/'))
+	req.login(user, () => res.redirect('/'))
 })
 
 router.get('/login', (req, res) => {

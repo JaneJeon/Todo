@@ -23,8 +23,8 @@ const bcrypt = require('bcrypt'),
 			user.password = await bcrypt.hash(user.password, SALT_ROUNDS)
 	}
 
-module.exports = db =>
-	db.define(
+module.exports = db => {
+	const User = db.define(
 		'User',
 		{
 			id: {
@@ -60,3 +60,10 @@ module.exports = db =>
 			}
 		}
 	)
+
+	User.prototype.checkPassword = async function(password) {
+		return await bcrypt.compare(password, this.password)
+	}
+
+	return User
+}
