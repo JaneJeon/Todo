@@ -13,10 +13,8 @@ router.get('/register', (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-	let user
-
 	try {
-		user = await User.create(req.body)
+		var user = await User.create(req.body)
 	} catch (err) {
 		console.error(JSON.stringify(err))
 		if (get(err, 'errors[0].type') === 'unique violation') {

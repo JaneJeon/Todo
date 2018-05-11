@@ -41,7 +41,7 @@
 	},
 	"scripts": {
 		"start": "node app.js",
-		"test": "mocha --bail --exit --slow 100"
+		"test": "mocha --bail --exit --slow 100 --check-leaks --globals Sequelize,User,Collection,Item"
 	},
 	"prettier": {
 		"printWidth": 90,
