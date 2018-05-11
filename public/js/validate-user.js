@@ -1,0 +1,1 @@
+../../lib/validate-user.js
