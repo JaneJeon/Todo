@@ -19,7 +19,14 @@ PM2_FLAG = -i max
 RUN = $(ENV) yarn $(NODE_FLAG) start
 PIPE = 2>&1 | tee "logs/`date "+%Y-%m-%d %H:%M:%S"`.log"
 
-.PHONY: dev v run clean cluster log stop
+BOMB = public/assets/10G.gzip
+ifeq ($(shell uname -s), Linux)
+BS = 1M
+else
+BS = 1m
+endif
+
+.PHONY: dev v run clean upgrade cluster log stop bomb
 
 dev:
 	$(MIN_LOG) $(DEV) $(RUN)
@@ -37,7 +44,11 @@ clean:
 	pm2 flush
 
 test: clean
-	$(ENV) $(DEV) yarn test
+	$(DEV) $(ENV) yarn test
+
+upgrade:
+	rm -f yarn.lock
+	yarn install
 
 cluster:
 	$(ENV) $(MIN_LOG) $(PROD) pm2 start $(APP) $(PM2_FLAG)
@@ -47,3 +58,7 @@ log:
 
 stop:
 	pm2 delete $(APP_NAME)
+
+# make ZIP bomb
+bomb:
+	dd if=/dev/zero bs=$(BS) count=10240 | gzip > $(BOMB)

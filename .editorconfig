@@ -1,10 +1,6 @@
 [*.*]
 indent_size = 4
-[*.js]
-indent_style = space
-insert_final_newline = false
-trim_trailing_whitespace = false
-[Makefile]
 indent_style = tab
-[*.hbs]
+trim_trailing_whitespace = true
+[*.(json|hbs)]
 insert_final_newline = true

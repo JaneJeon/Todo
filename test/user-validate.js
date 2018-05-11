@@ -1,56 +1,66 @@
-const assert    = require('assert'),
-      user      = require('../lib/user-validate')
-      validator = require('validator')
+const expect = require('chai').expect,
+	validate_user = require('../lib/validate-user')
+validator = require('validator')
 
-describe('user', () => {
-    describe('#validateUsername()', () => {
-        const valid_username = 'John114'
-        
-        it('should validate username', () =>
-            assert.equal(user.validateUsername(valid_username), null)
-        )
-        
-        it('should reject usernames that are too short', () =>
-            assert.notEqual(user.validateUsername('cat'), null)
-        )
-        
-        it('should reject usernames that are too long', () =>
-            assert.notEqual(user.validateUsername('123456789012345678901'), null)
-        )
-        
-        it('should reject usernames that are not alphanumeric', () =>
-            assert.notEqual(user.validateUsername('johnny8🤔'), null)
-        )
-    })
-    
-    describe('#validatePassword()', () => {
-        const valid_password = 'infinity&infinity'
-        
-        it('should validate password', () =>
-            assert.equal(user.validatePassword(valid_password), null)
-        )
-        
-        it('should reject passwords that are too short', () =>
-            assert.notEqual(user.validatePassword('dog'), null)
-        )
-        
-        it('should reject passwords that are too long', () =>
-            assert.notEqual(user.validatePassword('a'.repeat(73)), null)
-        )
-    })
-    
-    describe('#validateEmail()', () => {
-        const valid_email = 'johnny.depp.241@example.com'
-        
-        it('should validate email', () =>
-            assert.equal(user.validateEmail(valid_email), null)
-        )
-        
-        it('should reject invalid emails', () => {
-            assert.notEqual(user.validateEmail(''), null)
-            assert.notEqual(user.validateEmail(undefined + ''), null)
-            assert.notEqual(user.validateEmail('@example.com'), null)
-            assert.notEqual(user.validateEmail('johnny.depp.214'), null)
-        })
-    })
+describe('validate_user', () => {
+	describe('#username()', () => {
+		const valid_username = 'John114'
+
+		context('when username is valid', () =>
+			it('should accept it', () =>
+				expect(validate_user.username(valid_username)).to.be.null)
+		)
+
+		context('when username is too short', () =>
+			it('should reject it', () =>
+				expect(validate_user.username('cat')).to.not.be.null)
+		)
+
+		context('when username is too long', () =>
+			it('should reject it', () =>
+				expect(validate_user.username('123456789012345678901')).to.not.be.null)
+		)
+
+		context("when username isn't alphanumeric", () =>
+			it('should reject it', () =>
+				expect(validate_user.username('johnny8🤔')).to.not.be.null)
+		)
+	})
+
+	describe('#password()', () => {
+		const valid_password = 'infinity&infinity'
+
+		context('when password is valid', () =>
+			it('should accept it', () =>
+				expect(validate_user.password(valid_password)).to.be.null)
+		)
+
+		context('when password is too short', () =>
+			it('should reject it', () =>
+				expect(validate_user.password('dog')).to.not.be.null)
+		)
+
+		context('when password is too long', () =>
+			it('should reject it', () =>
+				expect(validate_user.password('a'.repeat(73))).to.not.be.null)
+		)
+	})
+
+	describe('#email()', () => {
+		const valid_email = 'johnny.depp.241@example.com'
+
+		context('when email is valid', () =>
+			it('should accept it', () =>
+				expect(validate_user.email(valid_email)).to.be.null)
+		)
+
+		context('when email is invalid', () =>
+			it('should reject it', () => {
+				expect(validate_user.email('')).to.not.be.null
+				expect(validate_user.email(undefined + '')).to.not.be.null
+				expect(validate_user.email('@example.com')).to.not.be.null
+				expect(validate_user.email('johnny.depp.214')).to.not.be.null
+			})
+		)
+	})
 })

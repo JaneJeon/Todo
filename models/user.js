@@ -1,41 +1,63 @@
-const bcrypt      = require('bcrypt'),
-      SALT_ROUNDS = 8,
+const bcrypt = require('bcrypt'),
+	validate_user = require('../lib/validate-user'),
+	SALT_ROUNDS = 10,
+	validate = user => {
+		if (
+			!validate_user.username(user.username) ||
+			!validate_user.password(user.password) ||
+			!validate_user.email(user.email)
+		)
+			throw new Error()
+	},
+	normalize = async user => {
+		if (user.changed('username')) {
+			user.name = user.username
+			user.username = user.username.toLowerCase()
+		}
 
-hashPassword = async (user, options) => {
-    if (user.changed('password'))
-        user.password = await bcrypt.hash(user.password, SALT_ROUNDS)
-}
+		if (user.changed('email')) {
+			user.email = validator.normalizeEmail(user.email)
+		}
+
+		if (user.changed('password'))
+			user.password = await bcrypt.hash(user.password, SALT_ROUNDS)
+	}
 
 module.exports = db =>
-    db.define('User', {
-        id: {
-            primaryKey: true,
-            type: Sequelize.INTEGER,
-            autoIncrement: true
-        },
-        // the lowercased username
-        username: {
-            type: Sequelize.STRING,
-            unique: true,
-            allowNull: false
-        },
-        // the full-case username; this is what the user sees
-        name: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        password: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        email: {
-            type: Sequelize.STRING,
-            unique: true,
-            allowNull: false
-        }
-    }, {
-        hooks: {
-            beforeCreate: hashPassword,
-            beforeUpdate: hashPassword
-        }
-    })
+	db.define(
+		'User',
+		{
+			id: {
+				primaryKey: true,
+				type: Sequelize.INTEGER,
+				autoIncrement: true
+			},
+			// the lowercased username
+			username: {
+				type: Sequelize.STRING,
+				unique: true,
+				allowNull: false
+			},
+			// the full-case username; this is what the user sees
+			name: {
+				type: Sequelize.STRING,
+				allowNull: false
+			},
+			password: {
+				type: Sequelize.STRING,
+				allowNull: false
+			},
+			email: {
+				type: Sequelize.STRING,
+				unique: true,
+				allowNull: false
+			}
+		},
+		{
+			hooks: {
+				afterValidate: validate,
+				beforeCreate: normalize,
+				beforeUpdate: normalize
+			}
+		}
+	)
