@@ -3,11 +3,11 @@ const bcrypt = require('bcrypt'),
 	SALT_ROUNDS = 10,
 	validate = user => {
 		if (
-			!validate_user.username(user.username) ||
-			!validate_user.password(user.password) ||
-			!validate_user.email(user.email)
+			validate_user.username(user.username) ||
+			validate_user.password(user.password) ||
+			validate_user.email(user.email)
 		)
-			throw new Error()
+			throw new Error('The user attempted to circumvent validation checking!')
 	},
 	normalize = async user => {
 		if (user.changed('username')) {
@@ -40,8 +40,7 @@ module.exports = db =>
 			},
 			// the full-case username; this is what the user sees
 			name: {
-				type: Sequelize.STRING,
-				allowNull: false
+				type: Sequelize.STRING
 			},
 			password: {
 				type: Sequelize.STRING,
