@@ -1,6 +1,6 @@
 const expect = require('chai').expect,
 	request = require('supertest'),
-	_ = require('lodash'),
+	{ endsWith, last } = require('lodash'),
 	valid_username = '123456789',
 	valid_password = 'hello world!',
 	valid_email = 'sample.person@gmail.com'
@@ -15,7 +15,7 @@ describe('app', () => {
 	/*---------- helpers ----------*/
 	const shouldLoad = url => it(`should load ${url}`, () => agent.get(url).expect(200)),
 		shouldRedirectTo = (res, url) =>
-			expect(_.endsWith(_.last(res.redirects), url)).to.be.true,
+			expect(endsWith(last(res.redirects), url)).to.be.true,
 		shouldReject = (url, body) =>
 			agent
 				.post(url)
