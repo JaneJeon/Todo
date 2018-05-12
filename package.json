@@ -55,6 +55,11 @@
 		"singleQuote": true
 	},
 	"nodemonConfig": {
-		"ignore": ["test/*", "logs/*", "public/*", "views/*"]
+		"ignore": [
+			"test/*",
+			"logs/*",
+			"public/*",
+			"views/*"
+		]
 	}
 }

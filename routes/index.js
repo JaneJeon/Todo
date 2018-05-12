@@ -1,6 +1,5 @@
 const router = require('express').Router(),
 	passport = require('passport'),
-	access = require('debug')('access'),
 	User = require('../models/user').model(),
 	{ capitalize, get } = require('lodash')
 
@@ -18,14 +17,14 @@ router.post('/register', async (req, res) => {
 	try {
 		var user = await User.create(req.body)
 	} catch (err) {
-		access(`denied: ${req.sessionID}`)
+		req.session.access = -1
 		if (get(err, 'errors[0].type') === 'unique violation')
 			req.flash('error', `${capitalize(err.errors[0].path)} is already taken`)
 
 		return res.redirect('/register')
 	}
 
-	access(`created: ${req.sessionID} as ${user.id}`)
+	req.session.access = 1
 	req.login(user, () => res.redirect('/'))
 })
 
@@ -37,13 +36,13 @@ router.get(
 router.post('/login', (req, res) =>
 	passport.authenticate('local', (err, user) => {
 		if (!user) {
-			access(`denied: ${req.sessionID}`)
+			req.session.access = -1
 			if (err) req.flash('error', err)
 
 			return res.redirect('/register')
 		}
 
-		access(`granted: ${req.sessionID} as ${user.id}`)
+		req.session.access = 1
 		req.login(user, () => res.redirect('/'))
 	})(req, res)
 )

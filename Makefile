@@ -11,7 +11,7 @@ APP = $(APP_NAME).js
 ENV = 
 MIN_LOG = DEBUG=server,http,error,access
 MAX_LOG = DEBUG=* NODE_OPTIONS='--trace-sync-io'
-PROD_LOG = $(MIN_LOG) DEBUG_HIDE_DATE=1
+PROD_LOG = $(MIN_LOG) DEBUG_COLORS=0
 
 # Various log output levels
 RUN = $(ENV) NODE_ENV=production yarn start
@@ -19,7 +19,7 @@ DEV = $(ENV) NODE_ENV=development yarn start-dev
 TEST = $(ENV) yarn test
 
 # Append this to any of the actions below to pipe server output to a log file
-PIPE = | tee "logs/`date "+%Y-%m-%d %H:%M:%S"`.log"
+PIPE = 2>"logs/`date "+%Y-%m-%d %H:%M:%S"`.log"
 
 # A gzip bomb that will expand to a 10 gig file once extracted
 BOMB = public/assets/10G.gzip
@@ -29,7 +29,7 @@ else
 BS = 1m
 endif
 
-.PHONY: dev v prod clean upgrade bomb
+.PHONY: dev v prod clean clear upgrade bomb
 
 dev:
 	$(MIN_LOG) $(DEV)
@@ -46,6 +46,10 @@ clean:
 	echo FLUSHALL | redis-cli
 	psql -U $(USER) -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
 	rm -rf .nyc_output
+
+# clears logs
+clear:
+	rm -f logs/*.log
 
 test: clean
 	$(TEST)

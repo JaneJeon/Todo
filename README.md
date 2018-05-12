@@ -8,9 +8,22 @@ e.g. `DEBUG=* yarn start`
 
 However, the recommended way to run the server is through `Make`, as the environment variables have been preconfigured for various "modes" (see below) and allows you to easily tweak them (specifically, by overriding the `ENV` alias in `Makefile`).
 
-Run `make` to boot the server in development mode, `make v` for verbose mode (in which ALL `debug` statements and any sync I/O is printed out), `make prod` for something akin to what you'd see in a production environment (specifically, Heroku), `make clean` to wipe the slate of the datastores, which is useful for `make test`.
+Run `make` to boot the server in development mode, `make v` for verbose mode (in which ALL `debug` statements and any sync I/O is printed out), `make prod` for something akin to what you'd see in a production environment (specifically, Heroku), `make clean` to wipe the slate of the datastores, which is useful for `make test`. If you're piping server output to a log file, `make clear` to clear the logfiles.
 
 Regardless of how you run the server, all of the environment variables (many of which you don't have to touch *at all*) are documented in the `Makefile`, along with their (sane) default values (which is what allows the server to run with zero configuation).
 
 ## Supported Datastores
 For session storage, the default option is to use `Redis`. However, you can override it from `app.js` (and use in-memory storage, for example). The server is database-agnostic (ie. it doesn't matter if it's `MySQL`, `Postgres`, or `SQLite`) as long as you pass in a valid connection URL (and install the drivers used by `Sequelize`).
+
+## Access Codes
+Access levels are logged for POST requests to `/login` and `/register`, with the path + access combination indicating the following:
+- `/login 1`:
+	- User logged in successfully with existing credentials.
+- `/register 1`:
+	- User created an account successfully.
+- `/login -1`:
+	- User tried to login with faulty credentials.
+- `/register -1`:
+	- User failed to create an account due to it clashing with an existing account.
+
+This way, you can keep an eye on brute force attacks and account registeration rate just by looking at the server logs.

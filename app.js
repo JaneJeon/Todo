@@ -13,13 +13,6 @@ const start = Date.now(),
 validator = require('validator')
 const dbPromise = require('./lib/db')() // need Sequelize to load
 
-/*---------- logging ----------*/
-// set output to stdout, not stderr
-debug.log = console.log.bind(console)
-
-// heroku already comes with HTTP logger
-if (process.env.NODE_ENV != 'production') app.use(log.http)
-
 /*---------- templating ----------*/
 hbs.registerPartials(path.join(__dirname, 'views/partials'))
 
@@ -52,12 +45,14 @@ app /*---------- middlewares ----------*/
 	.use(require('connect-flash')())
 	.use(passport.initialize())
 	.use(passport.session())
+	.use(log.http)
 	/*---------- views ----------*/
 	.use(express.static(path.join(__dirname, 'public')))
 	.set('views', path.join(__dirname, 'views'))
 	.set('view engine', 'hbs')
 	/*---------- monkey patching ----------*/
 	.use((req, res, next) => {
+		delete req.session.access
 		res.page = (page, obj) => res.render(page, middleware.link(req, obj))
 		next()
 	})
