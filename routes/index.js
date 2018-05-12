@@ -25,7 +25,7 @@ router.post('/register', async (req, res) => {
 		return res.redirect('/register')
 	}
 
-	access(`signed up: ${req.sessionID} as ${user.id}`)
+	access(`created: ${req.sessionID} as ${user.id}`)
 	req.login(user, () => res.redirect('/'))
 })
 
@@ -43,7 +43,7 @@ router.post('/login', (req, res) =>
 			return res.redirect('/register')
 		}
 
-		access(`signed in: ${req.sessionID} as ${user.id}`)
+		access(`granted: ${req.sessionID} as ${user.id}`)
 		req.login(user, () => res.redirect('/'))
 	})(req, res)
 )
