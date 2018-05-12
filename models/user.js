@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt'),
+const { compare, hash } = require('bcrypt'),
 	validate_user = require('../lib/validate-user'),
 	SALT_ROUNDS = 10,
 	validate = user => {
@@ -20,7 +20,7 @@ const bcrypt = require('bcrypt'),
 		}
 
 		if (user.changed('password'))
-			user.password = await bcrypt.hash(user.password, SALT_ROUNDS)
+			user.password = await hash(user.password, SALT_ROUNDS)
 	}
 
 module.exports = db => {
@@ -62,7 +62,7 @@ module.exports = db => {
 	)
 
 	User.prototype.checkPassword = async function(password) {
-		return await bcrypt.compare(password, this.password)
+		return await compare(password, this.password)
 	}
 
 	return User

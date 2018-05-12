@@ -5,7 +5,7 @@ $(function() {
 			.find('input')
 			.each(function() {
 				if ((error = user_validate[`${$(this).attr('name')}`]($(this).val()))) {
-					swal(error)
+					swal({ text: error, icon: 'error' })
 					e.preventDefault()
 				}
 			})

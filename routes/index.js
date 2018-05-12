@@ -1,6 +1,6 @@
 const router = require('express').Router(),
 	passport = require('passport'),
-	{ get, capitalize } = require('lodash')
+	{ capitalize, get } = require('lodash')
 
 router.get(
 	'/',
@@ -16,14 +16,10 @@ router.post('/register', async (req, res) => {
 	try {
 		var user = await User.create(req.body)
 	} catch (err) {
-		console.error(JSON.stringify(err))
-		if (get(err, 'errors[0].type') === 'unique violation') {
+		if (get(err, 'errors[0].type') === 'unique violation')
 			req.flash('error', `${capitalize(err.errors[0].path)} is already taken`)
-			return res.redirect('/register')
-		}
 
-		return res.json({})
-		// TODO: throw error again for logging purposes?
+		return res.redirect(401, '/register')
 	}
 
 	// automatically log in the user once the account is created
@@ -35,13 +31,15 @@ router.get('/login', (req, res) => {
 	res.page('login')
 })
 
-router.post(
-	'/login',
-	passport.authenticate('local', {
-		successRedirect: '/',
-		failureRedirect: '/register',
-		failureFlash: 'Username and/or password does not match'
-	})
+router.post('/login', (req, res) =>
+	passport.authenticate('local', (err, user, info) => {
+		if (!user) {
+			if (err) req.flash('error', err)
+			return res.redirect(401, '/register')
+		}
+
+		req.login(user, () => res.redirect('/'))
+	})(req, res)
 )
 
 router.get('/logout', (req, res) => {

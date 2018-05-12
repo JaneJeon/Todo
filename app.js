@@ -15,6 +15,9 @@ validator = require('validator')
 const dbPromise = require('./lib/db')() // need Sequelize to load
 
 /*---------- logging ----------*/
+// set output to stdout, not stderr
+debug.log = console.log.bind(console)
+
 // heroku already comes with HTTP logger
 if (process.env.NODE_ENV != 'production') app.use(log.http)
 
@@ -29,14 +32,16 @@ app /*---------- middlewares ----------*/
 	.use(require('cors')())
 	.use(bodyParser.json()) // AJAX requests
 	.use(bodyParser.urlencoded({ extended: false })) // HTTP requests
-	.use(require('cookie-parser')(process.env.SECRET)) // literally just for flash messages
+	.use(require('cookie-parser')(process.env.SECRET || 'teddy bear')) // literally just for flash messages
 	.use(
 		session({
 			name: 'sessionId',
 			store: new RedisStore({
-				client: require('redis').createClient(process.env.REDIS_URL)
+				client: require('redis').createClient(
+					process.env.REDIS_URL || 'redis://localhost:6379'
+				)
 			}),
-			secret: process.env.SECRET,
+			secret: process.env.SECRET || 'teddy bear',
 			resave: false,
 			saveUninitialized: true,
 			cookie: {
@@ -73,12 +78,13 @@ app /*---------- middlewares ----------*/
 	})
 
 module.exports = new Promise(resolve => {
-	const server = app.listen(process.env.PORT, async err => {
+	const server = app.listen(process.env.PORT || 3000, async err => {
 		try {
 			require('assert').equal(err, null)
 			await dbPromise
 		} catch (err) {
-			log.error(err)
+			console.error(`cannot create server: ${err}`)
+			console.error('(did you set the environment variables correctly?)')
 			process.exit(1)
 		} finally {
 			resolve(server)
