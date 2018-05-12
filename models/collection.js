@@ -1,5 +1,6 @@
-module.exports = db =>
-	db.define('Collection', {
+let Collection
+exports.init = (db, Sequelize) => {
+	Collection = db.define('Collection', {
 		id: {
 			primaryKey: true,
 			type: Sequelize.INTEGER,
@@ -10,3 +11,8 @@ module.exports = db =>
 			allowNull: false
 		}
 	})
+
+	return Collection
+}
+
+exports.model = () => Collection

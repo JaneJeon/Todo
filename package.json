@@ -45,7 +45,7 @@
 	"scripts": {
 		"start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app.js",
 		"start-dev": "nodemon app.js",
-		"test": "nyc mocha --bail --exit --slow 100 --check-leaks --globals Sequelize,User,Collection,Item,__core-js_shared__"
+		"test": "nyc mocha --bail --exit --slow 100 --check-leaks --globals __core-js_shared__"
 	},
 	"prettier": {
 		"printWidth": 90,
@@ -53,5 +53,8 @@
 		"useTabs": true,
 		"semi": false,
 		"singleQuote": true
+	},
+	"nodemonConfig": {
+		"ignore": ["test/*", "logs/*", "public/*", "views/*"]
 	}
 }

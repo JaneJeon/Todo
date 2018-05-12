@@ -1,5 +1,7 @@
 const router = require('express').Router(),
 	passport = require('passport'),
+	access = require('debug')('access'),
+	User = require('../models/user').model(),
 	{ capitalize, get } = require('lodash')
 
 router.get(
@@ -7,37 +9,41 @@ router.get(
 	(req, res) => (req.isAuthenticated() ? res.page('welcome') : res.redirect('/login'))
 )
 
-router.get('/register', (req, res) => {
-	if (req.isAuthenticated()) return res.redirect('/')
-	res.page('register')
-})
+router.get(
+	'/register',
+	(req, res) => (req.isAuthenticated() ? res.redirect('/') : res.page('register'))
+)
 
 router.post('/register', async (req, res) => {
 	try {
 		var user = await User.create(req.body)
 	} catch (err) {
+		access(`denied: ${req.sessionID}`)
 		if (get(err, 'errors[0].type') === 'unique violation')
 			req.flash('error', `${capitalize(err.errors[0].path)} is already taken`)
 
-		return res.redirect(401, '/register')
+		return res.redirect('/register')
 	}
 
-	// automatically log in the user once the account is created
+	access(`signed up: ${req.sessionID} as ${user.id}`)
 	req.login(user, () => res.redirect('/'))
 })
 
-router.get('/login', (req, res) => {
-	if (req.isAuthenticated()) return res.redirect('/')
-	res.page('login')
-})
+router.get(
+	'/login',
+	(req, res) => (req.isAuthenticated() ? res.redirect('/') : res.page('login'))
+)
 
 router.post('/login', (req, res) =>
-	passport.authenticate('local', (err, user, info) => {
+	passport.authenticate('local', (err, user) => {
 		if (!user) {
+			access(`denied: ${req.sessionID}`)
 			if (err) req.flash('error', err)
-			return res.redirect(401, '/register')
+
+			return res.redirect('/register')
 		}
 
+		access(`signed in: ${req.sessionID} as ${user.id}`)
 		req.login(user, () => res.redirect('/'))
 	})(req, res)
 )

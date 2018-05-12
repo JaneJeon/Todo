@@ -4,8 +4,7 @@ If you're in a hurry, after making sure you have local instances of `Redis` and 
 
 As all of the logging statements are pushed through `debug`, you'll need to specify which debug statements you want to see through the `DEBUG` environment variable if you want to see server logs.
 
-e.g.
-`DEBUG=* yarn start`
+e.g. `DEBUG=* yarn start`
 
 However, the recommended way to run the server is through `Make`, as the environment variables have been preconfigured for various "modes" (see below) and allows you to easily tweak them (specifically, by overriding the `ENV` alias in `Makefile`).
 

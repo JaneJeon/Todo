@@ -9,7 +9,7 @@ APP = $(APP_NAME).js
 # DATABASE_URL: a SQL database connection URL (default: postgres://$(USER)@localhost:5432/todo)
 # SSL: whether to use SSL in the database connection (default: 0)
 ENV = 
-MIN_LOG = DEBUG=server,http,error
+MIN_LOG = DEBUG=server,http,error,access
 MAX_LOG = DEBUG=* NODE_OPTIONS='--trace-sync-io'
 PROD_LOG = $(MIN_LOG) DEBUG_HIDE_DATE=1
 

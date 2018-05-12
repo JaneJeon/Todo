@@ -10,7 +10,6 @@ const start = Date.now(),
 	RedisStore = require('connect-redis')(session),
 	log = require('./lib/logger'),
 	middleware = require('./lib/middleware')
-Sequelize = require('sequelize-hierarchy')()
 validator = require('validator')
 const dbPromise = require('./lib/db')() // need Sequelize to load
 

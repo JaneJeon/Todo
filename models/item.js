@@ -1,5 +1,6 @@
-module.exports = db =>
-	db.define('Item', {
+let Item
+exports.init = (db, Sequelize) => {
+	Item = db.define('Item', {
 		id: {
 			primaryKey: true,
 			type: Sequelize.INTEGER,
@@ -27,3 +28,8 @@ module.exports = db =>
 			type: Sequelize.ARRAY(Sequelize.TEXT)
 		}
 	})
+
+	return Item
+}
+
+exports.model = () => Item

@@ -23,8 +23,9 @@ const { compare, hash } = require('bcrypt'),
 			user.password = await hash(user.password, SALT_ROUNDS)
 	}
 
-module.exports = db => {
-	const User = db.define(
+let User
+exports.init = (db, Sequelize) => {
+	User = db.define(
 		'User',
 		{
 			id: {
@@ -67,3 +68,5 @@ module.exports = db => {
 
 	return User
 }
+
+exports.model = () => User
