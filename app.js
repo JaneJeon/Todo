@@ -1,5 +1,7 @@
-const start = Date.now(),
-	express = require('express'),
+const start = Date.now()
+require('dotenv').load({ path: '.env' }) // load before express to set bootup mode
+
+const express = require('express'),
 	app = express(),
 	bodyParser = require('body-parser'),
 	debug = require('debug'),
@@ -10,34 +12,29 @@ const start = Date.now(),
 	RedisStore = require('connect-redis')(session),
 	log = require('./lib/logger'),
 	middleware = require('./lib/middleware')
-validator = require('validator')
-const dbPromise = require('./lib/db')() // need Sequelize to load
+validator = require('validator') // needs to be global for user validation code
 
-/*---------- templating ----------*/
-hbs.registerPartials(path.join(__dirname, 'views/partials'))
-
-/*---------- authentication ----------*/
-require('./lib/passport')
+const dbPromise = require('./lib/db')() // load models
+hbs.registerPartials(path.join(__dirname, 'views/partials')) // templating
+require('./lib/passport') // user authentication
 
 app /*---------- middlewares ----------*/
 	.use(require('helmet')())
 	.use(require('cors')())
 	.use(bodyParser.json()) // AJAX requests
 	.use(bodyParser.urlencoded({ extended: false })) // HTTP requests
-	.use(require('cookie-parser')(process.env.SECRET || 'teddy bear')) // literally just for flash messages
+	.use(require('cookie-parser')(process.env.SECRET)) // flash messages
 	.use(
 		session({
 			name: 'sessionId',
 			store: new RedisStore({
-				client: require('redis').createClient(
-					process.env.REDIS_URL || 'redis://localhost:6379'
-				)
+				client: require('redis').createClient(process.env.REDIS_URL)
 			}),
-			secret: process.env.SECRET || 'teddy bear',
+			secret: process.env.SECRET,
 			resave: false,
 			saveUninitialized: true,
 			cookie: {
-				secure: Boolean(process.env.SECURE),
+				secure: Boolean(parseInt(process.env.SECURE)),
 				httpOnly: true // for security
 			}
 		})
@@ -72,7 +69,7 @@ app /*---------- middlewares ----------*/
 	})
 
 module.exports = new Promise(resolve => {
-	const server = app.listen(process.env.PORT || 3000, async err => {
+	const server = app.listen(process.env.PORT, async err => {
 		try {
 			require('assert').equal(err, null)
 			await dbPromise

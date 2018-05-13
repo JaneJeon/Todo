@@ -1,22 +1,12 @@
-USER = $(shell whoami)
-APP_NAME = app
-APP = $(APP_NAME).js
+# Sample modes
+RUN = NODE_ENV=production yarn start
+DEV = yarn start-dev
+TEST = yarn test
 
-# Set environment variables
-# PORT: port number of the server (default 3000)
-# SECRET: the secret key to be used for cookie & session storage (default 'teddie bear')
-# REDIS_URL: the redis connection URL (default: redis://localhost:6379)
-# DATABASE_URL: a SQL database connection URL (default: postgres://$(USER)@localhost:5432/todo)
-# SSL: whether to use SSL in the database connection (default: 0)
-ENV = 
-MIN_LOG = DEBUG=server,http,error,access
+# Logging levels for the modes
+DEV_LOG = DEBUG=server,req:,error
 MAX_LOG = DEBUG=* NODE_OPTIONS='--trace-sync-io'
-PROD_LOG = $(MIN_LOG) DEBUG_COLORS=0
-
-# Various log output levels
-RUN = $(ENV) NODE_ENV=production yarn start
-DEV = $(ENV) NODE_ENV=development yarn start-dev
-TEST = $(ENV) yarn test
+PROD_LOG = DEBUG=server,error DEBUG_COLORS=0
 
 # Append this to any of the actions below to pipe server output to a log file
 PIPE = 2>"logs/`date "+%Y-%m-%d %H:%M:%S"`.log"
@@ -32,7 +22,7 @@ endif
 .PHONY: dev v prod clean clear upgrade bomb
 
 dev:
-	$(MIN_LOG) $(DEV)
+	$(DEV_LOG) $(DEV)
 
 # verbose
 v:
@@ -44,7 +34,7 @@ prod:
 
 clean:
 	echo FLUSHALL | redis-cli
-	psql -U $(USER) -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+	psql -U postgres -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
 	rm -rf .nyc_output
 
 # clears logs
