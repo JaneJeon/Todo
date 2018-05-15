@@ -4,17 +4,26 @@ require('dotenv').load({ path: '.env' }) // load before express to set bootup mo
 const express = require('express'),
 	app = express(),
 	bodyParser = require('body-parser'),
+	chalk = require('chalk'),
 	debug = require('debug'),
 	hbs = require('hbs'),
+	mongoose = require('mongoose'),
 	passport = require('passport'),
 	path = require('path'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
 	log = require('./lib/logger'),
-	middleware = require('./lib/middleware')
+	{ link } = require('./lib/middleware')
+
 validator = require('validator') // needs to be global for user validation code
 
-const dbPromise = require('./lib/db')() // load models
+// connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI)
+mongoose.connection.on('error', err => {
+	debug('server')(`${chalk.red('✗')} cannot connect to Mongo: ${err}. Is it running?`)
+	process.exit(1)
+})
+
 hbs.registerPartials(path.join(__dirname, 'views/partials')) // templating
 require('./lib/passport') // user authentication
 
@@ -50,7 +59,7 @@ app /*---------- middlewares ----------*/
 	/*---------- monkey patching ----------*/
 	.use((req, res, next) => {
 		delete req.session.access
-		res.page = (page, obj) => res.render(page, middleware.link(req, obj))
+		res.page = (page, obj) => res.render(page, link(req, obj))
 		next()
 	})
 	/*---------- routes ----------*/
@@ -68,20 +77,14 @@ app /*---------- middlewares ----------*/
 		res.status(500).page('500')
 	})
 
-module.exports = new Promise(resolve => {
-	const server = app.listen(process.env.PORT, async err => {
-		try {
-			require('assert').equal(err, null)
-			await dbPromise
-		} catch (err) {
-			console.error(`cannot create server: ${err}`)
-			console.error('(did you set the environment variables correctly?)')
-			process.exit(1)
-		} finally {
-			resolve(server)
-		}
+const server = app.listen(process.env.PORT, err => {
+	if (err) {
+		debug('server')(`${chalk.red('✗')} cannot start server: ${err}`)
+		process.exit(2)
+	}
 
-		debug('server')(`running on port ${server.address().port}`)
-		debug('server')(`started in ${Date.now() - start} ms`)
-	})
+	debug('server')(`${chalk.green('✓')} running on port ${server.address().port}`)
+	debug('server')(`started in ${Date.now() - start} ms`)
 })
+
+module.exports = server

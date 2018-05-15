@@ -1,6 +1,7 @@
 <script>
 	$(function() {
-		if ('{{error}}') swal({text: '{{error}}', icon: 'error'})
+		const error = '{{error}}'
+		if (error) swal({text: error, icon: 'error'})
 	})
 </script>
 </body>

@@ -1,35 +1,20 @@
-let Item
-exports.init = (db, Sequelize) => {
-	Item = db.define('Item', {
-		id: {
-			primaryKey: true,
-			type: Sequelize.INTEGER,
-			autoIncrement: true
+const mongoose = require('mongoose'),
+	check = require('../lib/check'),
+	itemSchema = new mongoose.Schema(
+		{
+			name: {
+				type: String,
+				required: true,
+				validate: function() {
+					return check.name(this.name) == null
+				}
+			},
+			body: String,
+			completed: Boolean,
+			important: Boolean,
+			due: Date
 		},
-		body: {
-			type: Sequelize.TEXT,
-			allowNull: false
-		},
-		description: {
-			type: Sequelize.TEXT
-		},
-		completed: {
-			type: Sequelize.BOOLEAN,
-			defaultValue: false
-		},
-		important: {
-			type: Sequelize.BOOLEAN,
-			defaultValue: false
-		},
-		due: {
-			type: Sequelize.DATE
-		},
-		tags: {
-			type: Sequelize.ARRAY(Sequelize.TEXT)
-		}
-	})
+		{ timestamps: true }
+	)
 
-	return Item
-}
-
-exports.model = () => Item
+module.exports = mongoose.model('Item', itemSchema)

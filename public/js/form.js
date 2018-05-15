@@ -4,7 +4,8 @@ $(function() {
 		$(this)
 			.find('input')
 			.each(function() {
-				if ((error = user_validate[`${$(this).attr('name')}`]($(this).val()))) {
+				const error = check[`${$(this).attr('name')}`]($(this).val())
+				if (error) {
 					swal({ text: error, icon: 'error' })
 					e.preventDefault()
 				}

@@ -34,7 +34,7 @@ prod:
 
 clean:
 	echo FLUSHALL | redis-cli
-	psql -U postgres -d todo -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+	mongo todo --eval "db.dropDatabase()"
 	rm -rf .nyc_output
 
 # clears logs

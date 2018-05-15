@@ -1,18 +1,17 @@
-let Collection
-exports.init = (db, Sequelize) => {
-	Collection = db.define('Collection', {
-		id: {
-			primaryKey: true,
-			type: Sequelize.INTEGER,
-			autoIncrement: true
+const mongoose = require('mongoose'),
+	check = require('../lib/check'),
+	collectionSchema = new mongoose.Schema(
+		{
+			name: {
+				type: String,
+				required: true,
+				validate: function() {
+					return check.name(this.name) == null
+				}
+			},
+			items: [mongoose.Schema.Types.ObjectId]
 		},
-		name: {
-			type: Sequelize.STRING,
-			allowNull: false
-		}
-	})
+		{ timestamps: true }
+	)
 
-	return Collection
-}
-
-exports.model = () => Collection
+module.exports = mongoose.model('Collection', collectionSchema)

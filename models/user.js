@@ -1,72 +1,46 @@
-const { compare, hash } = require('bcrypt'),
-	validate_user = require('../lib/validate-user'),
+const mongoose = require('mongoose'),
+	bcrypt = require('bcrypt'),
+	check = require('../lib/check'),
 	SALT_ROUNDS = 10,
-	validate = user => {
-		if (
-			validate_user.username(user.username) ||
-			validate_user.password(user.password) ||
-			validate_user.email(user.email)
-		)
-			throw new Error('The user attempted to circumvent validation checking!')
-	},
-	normalize = async user => {
-		if (user.changed('username')) {
-			user.name = user.username
-			user.username = user.username.toLowerCase()
-		}
-
-		if (user.changed('email')) {
-			user.email = validator.normalizeEmail(user.email)
-		}
-
-		if (user.changed('password'))
-			user.password = await hash(user.password, SALT_ROUNDS)
-	}
-
-let User
-exports.init = (db, Sequelize) => {
-	User = db.define(
-		'User',
+	userSchema = new mongoose.Schema(
 		{
-			id: {
-				primaryKey: true,
-				type: Sequelize.INTEGER,
-				autoIncrement: true
-			},
-			// the lowercased username
-			username: {
-				type: Sequelize.STRING,
-				unique: true,
-				allowNull: false
-			},
-			// the full-case username; this is what the user sees
 			name: {
-				type: Sequelize.STRING
-			},
-			password: {
-				type: Sequelize.STRING,
-				allowNull: false
+				type: String,
+				default: 'User',
+				required: true,
+				validate: function() {
+					return check.name(this.name) == null
+				}
 			},
 			email: {
-				type: Sequelize.STRING,
+				type: String,
 				unique: true,
-				allowNull: false
-			}
+				required: true,
+				validate: function() {
+					return check.email(this.email) == null
+				},
+				set: email => validator.normalizeEmail(email)
+			},
+			password: {
+				type: String,
+				required: true,
+				validate: function() {
+					return check.password(this.password) == null
+				},
+				select: false
+			},
+			collections: [mongoose.Schema.Types.ObjectId]
 		},
-		{
-			hooks: {
-				afterValidate: validate,
-				beforeCreate: normalize,
-				beforeUpdate: normalize
-			}
-		}
+		{ timestamps: true }
 	)
 
-	User.prototype.checkPassword = async function(password) {
-		return await compare(password, this.password)
-	}
+userSchema.pre('save', async function() {
+	if (this.isModified('password'))
+		this.password = await bcrypt.hash(this.password, SALT_ROUNDS)
+})
 
-	return User
+userSchema.methods.checkPassword = async function(password) {
+	return await bcrypt.compare(password, this.password)
 }
 
-exports.model = () => User
+module.exports = mongoose.model('User', userSchema)

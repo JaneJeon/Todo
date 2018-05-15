@@ -1,6 +1,6 @@
 const router = require('express').Router(),
 	passport = require('passport'),
-	User = require('../models/user').model(),
+	User = require('../models/user'),
 	{ capitalize, get } = require('lodash')
 
 router.get(
@@ -15,11 +15,12 @@ router.get(
 
 router.post('/register', async (req, res) => {
 	try {
-		var user = await User.create(req.body)
+		var user = new User(req.body)
+		await user.save()
 	} catch (err) {
 		req.session.access = -1
-		if (get(err, 'errors[0].type') === 'unique violation')
-			req.flash('error', `${capitalize(err.errors[0].path)} is already taken`)
+		if (err.name == 'MongoError' && err.code == 11000)
+			req.flash('error', 'Email is already taken')
 
 		return res.redirect('/register')
 	}
