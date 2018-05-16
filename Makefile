@@ -19,7 +19,7 @@ else
 BS = 1m
 endif
 
-.PHONY: dev v prod clean clear upgrade bomb
+.PHONY: dev v prod clean clear test upgrade bomb
 
 dev:
 	$(DEV_LOG) $(DEV)
@@ -41,7 +41,7 @@ clean:
 clear:
 	rm -f logs/*.log
 
-test: clean
+test:
 	$(TEST)
 
 # make ZIP bomb

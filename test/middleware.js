@@ -1,5 +1,6 @@
 const { expect } = require('chai'),
 	middleware = require('../lib/middleware')
+
 validator = require('validator')
 
 describe('middleware', () => {

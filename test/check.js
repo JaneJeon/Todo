@@ -10,7 +10,7 @@ describe('check', () => {
 		)
 
 		context('when name is empty', () =>
-			it('should reject it', () => expect(check.name('    \t \t')).to.not.be.null)
+			it('should reject it', () => expect(check.name('    \t \t')).to.exist)
 		)
 	})
 
@@ -21,12 +21,11 @@ describe('check', () => {
 		)
 
 		context('when password is too short', () =>
-			it('should reject it', () => expect(check.password('dog')).to.not.be.null)
+			it('should reject it', () => expect(check.password('dog')).to.exist)
 		)
 
 		context('when password is too long', () =>
-			it('should reject it', () =>
-				expect(check.password('a'.repeat(73))).to.not.be.null)
+			it('should reject it', () => expect(check.password('a'.repeat(73))).to.exist)
 		)
 	})
 
@@ -38,10 +37,10 @@ describe('check', () => {
 
 		context('when email is invalid', () =>
 			it('should reject it', () => {
-				expect(check.email('')).to.not.be.null
-				expect(check.email(undefined + '')).to.not.be.null
-				expect(check.email('@example.com')).to.not.be.null
-				expect(check.email('johnny.214@')).to.not.be.null
+				expect(check.email('')).to.exist
+				expect(check.email(undefined + '')).to.exist
+				expect(check.email('@example.com')).to.exist
+				expect(check.email('johnny.214@')).to.exist
 			})
 		)
 	})

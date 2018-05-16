@@ -1,16 +1,15 @@
 const mongoose = require('mongoose'),
 	bcrypt = require('bcrypt'),
 	check = require('../lib/check'),
+	DEFAULT_NAME = 'User',
 	SALT_ROUNDS = 10,
 	userSchema = new mongoose.Schema(
 		{
 			name: {
 				type: String,
-				default: 'User',
-				required: true,
-				validate: function() {
-					return check.name(this.name) == null
-				}
+				default: DEFAULT_NAME,
+				// disallow whitespace strings
+				set: name => name.trim() || DEFAULT_NAME
 			},
 			email: {
 				type: String,
@@ -29,9 +28,9 @@ const mongoose = require('mongoose'),
 				},
 				select: false
 			},
-			collections: [mongoose.Schema.Types.ObjectId]
+			collections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Collection' }]
 		},
-		{ timestamps: true }
+		{ timestamps: true, toObject: { setters: true } }
 	)
 
 userSchema.pre('save', async function() {
@@ -40,7 +39,13 @@ userSchema.pre('save', async function() {
 })
 
 userSchema.methods.checkPassword = async function(password) {
-	return await bcrypt.compare(password, this.password)
+	return bcrypt.compare(password, this.password)
+}
+
+userSchema.statics.findByEmail = async function(email) {
+	return this.findOne({ email: validator.normalizeEmail(email) })
+		.select('password')
+		.exec()
 }
 
 module.exports = mongoose.model('User', userSchema)

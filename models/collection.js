@@ -1,15 +1,12 @@
 const mongoose = require('mongoose'),
-	check = require('../lib/check'),
 	collectionSchema = new mongoose.Schema(
 		{
 			name: {
 				type: String,
-				required: true,
-				validate: function() {
-					return check.name(this.name) == null
-				}
+				trim: true,
+				required: true
 			},
-			items: [mongoose.Schema.Types.ObjectId]
+			items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 		},
 		{ timestamps: true }
 	)
