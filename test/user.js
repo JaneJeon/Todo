@@ -3,7 +3,7 @@ const { expect } = require('chai'),
 	bcrypt = require('bcrypt'),
 	check = require('../lib/check'),
 	User = require('../models/user'),
-	default_name = 'User',
+	DEFAULT_NAME = 'User',
 	email = 'email',
 	password = 'password'
 
@@ -28,7 +28,7 @@ describe('User', () => {
 	const expectDefaultName = (user, done) => {
 		user.validate(err => {
 			expect(err).to.be.null
-			expect(user.name).to.equal(default_name)
+			expect(user.name).to.equal(DEFAULT_NAME)
 			done()
 		})
 	}

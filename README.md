@@ -18,3 +18,26 @@ Access levels are logged for POST requests to `/login` and `/register`, with the
 	- User failed to create an account due to it clashing with an existing account.
 
 This way, you can keep an eye on brute force attacks and account registeration rate just by looking at the server logs.
+
+## Models
+### Goals
+- Reflect the way objects are used in application (ie. eliminate impedence mismatch)
+- Minimize the number of queries that need to run
+
+A User:
+- can create multiple collections
+- can share those collections with certain people, or the public (unlisted)
+- can watch multiple collections (unlisted)
+
+A Collection:
+- has one creator
+- can have multiple collaborators on a private document
+- can be private or unlisted
+
+An Item:
+- needs to be able to CRUD in-place by its `id`
+- needs to be able to drag and drop subtrees
+	- select the "head" of subtrees
+	- drop that head into a child of *someone*
+
+While I considered referencing the *parent*, I realized I cannot preserve the order in which items are put in, which is kinda crucial for an app like this. In addition, referencing the *child* makes it super easy to populate.

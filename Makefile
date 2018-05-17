@@ -1,7 +1,6 @@
-# Sample modes
+# Server modes
 RUN = NODE_ENV=production yarn start
 DEV = yarn start-dev
-TEST = yarn test
 
 # Logging levels for the modes
 DEV_LOG = DEBUG=server,req:,error
@@ -19,7 +18,7 @@ else
 BS = 1m
 endif
 
-.PHONY: dev v prod clean clear test upgrade bomb
+.PHONY: dev v prod clean clear test bomb
 
 dev:
 	$(DEV_LOG) $(DEV)
@@ -42,7 +41,10 @@ clear:
 	rm -f logs/*.log
 
 test:
-	$(TEST)
+	yarn test
+
+fake: clean
+	DEBUG=generating yarn fake
 
 # make ZIP bomb
 bomb:

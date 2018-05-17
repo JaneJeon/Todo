@@ -35,6 +35,7 @@
 	},
 	"devDependencies": {
 		"chai": "^4.1.2",
+		"faker": "^4.1.0",
 		"mocha": "^5.1.1",
 		"nodemon": "^1.17.4",
 		"nyc": "^11.7.3",
@@ -46,7 +47,8 @@
 	"scripts": {
 		"start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app.js",
 		"start-dev": "nodemon app.js",
-		"test": "nyc mocha --bail --exit --slow 100 --check-leaks --globals __core-js_shared__"
+		"test": "nyc mocha --bail --exit --slow 100 --check-leaks --globals __core-js_shared__",
+		"fake": "node scripts/fake.js"
 	},
 	"prettier": {
 		"printWidth": 90,
