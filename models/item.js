@@ -10,10 +10,14 @@ const mongoose = require('mongoose'),
 			completed: Boolean,
 			important: Boolean,
 			due: Date,
-			children: [
-				{ type: mongoose.Schema.Types.ObjectId, ref: 'Item', index: true }
-			],
-			top: { type: Boolean, default: false, index: true }
+			path: {
+				type: String,
+				required: true,
+				set: function(basepath) {
+					return `${basepath || ''}/${this.id}`
+				},
+				unique: true
+			}
 		},
 		{ timestamps: true }
 	)
@@ -30,14 +34,5 @@ itemSchema.index(
 		}
 	}
 )
-
-// https://stackoverflow.com/a/33341301
-const autoPopulate = function(next) {
-	this.populate('children')
-	next()
-}
-
-itemSchema.pre('find', autoPopulate)
-itemSchema.pre('findOne', autoPopulate)
 
 module.exports = mongoose.model('Item', itemSchema)

@@ -41,3 +41,7 @@ An Item:
 	- drop that head into a child of *someone*
 
 While I considered referencing the *parent*, I realized I cannot preserve the order in which items are put in, which is kinda crucial for an app like this. In addition, referencing the *child* makes it super easy to populate.
+
+When using materialized path:
+- can't chronologically order when changing the underlying structure of the tree, as that'd need to update the rest of the comments on the same level
+- but materialized path might be worth a try for unmodifiable trees?

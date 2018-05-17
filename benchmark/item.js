@@ -10,11 +10,15 @@ require('mongoose')
 			iters = 1000
 
 		for (let i = 0; i < iters; i++) {
-			const items = await Item.find({ top: true }).exec()
-			for (let j = 0; j < items.length; j++) console.error(JSON.stringify(items[j]))
+			const tops = await Item.find({ path: /^\/[^\/]+$/ }).exec()
+			for (let j = 0; j < tops.length; j++) {
+				let items = await Item.find({ path: new RegExp(`^\\${tops[j].path}`) })
+				for (let k = 0; k < items.length; k++)
+					console.error(JSON.stringify(items[k]))
+			}
 		}
 
-		// takes around 80 ms to build a full tree for ~1100 items
+		// takes around 70 ms to build a full tree for ~1100 items
 		console.log(`${iters} iters, avg ${(Date.now() - start) / iters} ms.`)
 
 		process.exit(0)

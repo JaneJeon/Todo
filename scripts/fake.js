@@ -6,9 +6,10 @@ const faker = require('faker'),
 	DEPTH = 3,
 	BRANCH_FACTOR = 5,
 	SEED = 7,
-	generateItem = () => ({
+	generateItem = parentId => ({
 		name: faker.lorem.sentence(),
-		description: faker.lorem.paragraphs()
+		description: faker.lorem.paragraphs(),
+		path: parentId
 	})
 
 require('mongoose')
@@ -16,19 +17,14 @@ require('mongoose')
 	.then(async () => {
 		let parents = []
 		generating('top-level items')
-		for (let i = 0; i < SEED; i++)
-			parents.push(await Item.create(Object.assign(generateItem(), { top: true })))
+		for (let i = 0; i < SEED; i++) parents.push(await Item.create(generateItem()))
 
 		let next = []
-		for (let i = 0; i < DEPTH; i++) {
+		for (let i = 1; i <= DEPTH; i++) {
 			generating(`depth ${i} items`)
 			for (let j = 0; j < parents.length; j++)
-				for (let k = 0; k < BRANCH_FACTOR; k++) {
-					const item = await Item.create(generateItem())
-					parents[j].children.push(item.id)
-					await parents[j].save()
-					next.push(item)
-				}
+				for (let k = 0; k < BRANCH_FACTOR; k++)
+					next.push(await Item.create(generateItem(parents[j].path)))
 
 			parents = next
 			next = []
