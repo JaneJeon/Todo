@@ -40,6 +40,7 @@
 		"nodemon": "^1.17.4",
 		"nyc": "^11.7.3",
 		"prettier": "^1.12.1",
+		"pretty-ms": "^3.1.0",
 		"sinon": "^5.0.7",
 		"supertest": "^3.0.0",
 		"supports-color": "^5.4.0"
@@ -48,7 +49,8 @@
 		"start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app.js",
 		"start-dev": "nodemon app.js",
 		"test": "nyc mocha --bail --exit --slow 100 --check-leaks --globals __core-js_shared__",
-		"fake": "node scripts/fake.js"
+		"fake": "node scripts/fake.js",
+		"bench": "node benchmark/item.js"
 	},
 	"prettier": {
 		"printWidth": 90,

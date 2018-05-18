@@ -1,21 +1,33 @@
 // see how long it takes to fully load item trees in a hierarchical manner
 // ie. in a way that materialized path is insufficient
-require('dotenv').config()
-const Item = require('../models/item')
+const dotenv = require('dotenv')
+dotenv.config()
+dotenv.config({ path: '.test.env' })
 
-require('mongoose')
-	.connect(process.env.MONGODB_URI)
-	.then(async () => {
-		const start = Date.now(),
-			iters = 1000
+const itemLog = require('debug')('benchmark:item'),
+	Item = require('../models/item'),
+	Collection = require('../models/collection'),
+	VERBOSE = Boolean(parseInt(process.env.VERBOSE))
+;(async () => {
+	await require('mongoose').connect(process.env.MONGODB_URI)
 
-		for (let i = 0; i < iters; i++) {
-			const items = await Item.find({ top: true }).exec()
-			for (let j = 0; j < items.length; j++) console.error(JSON.stringify(items[j]))
-		}
+	const start = Date.now()
 
-		// takes around 80 ms to build a full tree for ~1100 items
-		console.log(`${iters} iters, avg ${(Date.now() - start) / iters} ms.`)
+	for (let i = 0; i < process.env.ITERS; i++) {
+		const itemCollection = await Collection.findOne({ name: 'item-container' })
+			.populate('items')
+			.exec()
 
-		process.exit(0)
-	})
+		if (VERBOSE)
+			itemCollection.items.forEach(item => console.log(JSON.stringify(item)))
+	}
+
+	// takes around 50 ms to build a full tree for ~1100 items
+	itemLog(
+		`${process.env.ITERS} runs, avg ${require('pretty-ms')(
+			(Date.now() - start) / process.env.ITERS
+		)}`
+	)
+
+	process.exit(0)
+})()

@@ -42,5 +42,3 @@ An Item:
 	- drop that head into a child of *someone*
 
 While I considered referencing the *parent*, I realized I cannot preserve the order in which items are put in, which is kinda crucial for an app like this. In addition, referencing the *child* makes it super easy to populate.
-
-<!-- TODO: sanity checks for fields -->

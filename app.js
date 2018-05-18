@@ -1,5 +1,6 @@
 const start = Date.now()
 require('dotenv').config() // load before express to set bootup mode
+require('./lib/passport') // user authentication
 
 const express = require('express'),
 	app = express(),
@@ -7,6 +8,7 @@ const express = require('express'),
 	chalk = require('chalk'),
 	debug = require('debug'),
 	hbs = require('hbs'),
+	mongoose = require('mongoose'),
 	passport = require('passport'),
 	path = require('path'),
 	session = require('express-session'),
@@ -16,8 +18,13 @@ const express = require('express'),
 
 validator = require('validator') // needs to be global for user validation code
 
+mongoose.connect(process.env.MONGODB_URI)
+mongoose.connection.on('error', err => {
+	debug('server')(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
+	process.exit(1)
+})
+
 hbs.registerPartials(path.join(__dirname, 'views/partials')) // templating
-require('./lib/passport') // user authentication
 
 app /*---------- middlewares ----------*/
 	.use(require('helmet')())
@@ -69,16 +76,9 @@ app /*---------- middlewares ----------*/
 		res.status(500).page('500')
 	})
 
-const server = app.listen(process.env.PORT, async err => {
+const server = app.listen(process.env.PORT, err => {
 	if (err) {
 		debug('server')(`${chalk.red('✗')} cannot start server: ${err}`)
-		process.exit(1)
-	}
-
-	try {
-		await require('mongoose').connect(process.env.MONGODB_URI)
-	} catch (err) {
-		debug('server')(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
 		process.exit(2)
 	}
 

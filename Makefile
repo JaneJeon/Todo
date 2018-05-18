@@ -7,8 +7,9 @@ DEV_LOG = DEBUG=server,req:,error
 MAX_LOG = DEBUG=* NODE_OPTIONS='--trace-sync-io'
 PROD_LOG = DEBUG=server,error DEBUG_COLORS=0
 
-# Append this to any of the actions below to pipe server output to a log file
-PIPE = 2>"logs/`date "+%Y-%m-%d %H:%M:%S"`.log"
+# Append PIPE to any of the actions below to pipe server output to a log file
+DATE = `date "+%Y-%m-%d %H:%M:%S"`
+PIPE = 2>"log/$(DATE).log"
 
 # A gzip bomb that will expand to a 10 gig file once extracted
 BOMB = public/assets/10G.gzip
@@ -44,7 +45,10 @@ test:
 	yarn test
 
 fake: clean
-	DEBUG=generating yarn fake
+	DEBUG=fake* yarn fake
+
+bench: fake
+	DEBUG=benchmark* yarn bench >log/item-bench-$(DATE).log
 
 # make ZIP bomb
 bomb:
