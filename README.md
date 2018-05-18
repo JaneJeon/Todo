@@ -24,6 +24,7 @@ This way, you can keep an eye on brute force attacks and account registeration r
 - Reflect the way objects are used in application (ie. eliminate impedence mismatch)
 - Minimize the number of queries that need to run
 
+### Functionality
 A User:
 - can create multiple collections
 - can share those collections with certain people, or the public (unlisted)
@@ -41,3 +42,5 @@ An Item:
 	- drop that head into a child of *someone*
 
 While I considered referencing the *parent*, I realized I cannot preserve the order in which items are put in, which is kinda crucial for an app like this. In addition, referencing the *child* makes it super easy to populate.
+
+<!-- TODO: sanity checks for fields -->

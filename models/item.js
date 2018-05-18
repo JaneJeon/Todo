@@ -10,10 +10,7 @@ const mongoose = require('mongoose'),
 			completed: Boolean,
 			important: Boolean,
 			due: Date,
-			children: [
-				{ type: mongoose.Schema.Types.ObjectId, ref: 'Item', index: true }
-			],
-			top: { type: Boolean, default: false, index: true }
+			children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 		},
 		{ timestamps: true }
 	)

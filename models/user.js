@@ -15,20 +15,20 @@ const mongoose = require('mongoose'),
 				type: String,
 				unique: true,
 				required: true,
-				validate: function() {
-					return check.email(this.email) == null
-				},
+				validate: email => check.email(this.email) == null,
 				set: email => validator.normalizeEmail(email)
 			},
 			password: {
 				type: String,
 				required: true,
-				validate: function() {
-					return check.password(this.password) == null
-				},
+				validate: password => check.password(this.password) == null,
 				select: false
 			},
-			collections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Collection' }]
+			// the user's collections or the collections that the user has access to,
+			// sorted in anti-chronological order in which the user last viewed it
+			collections: [
+				{ type: mongoose.Schema.Types.ObjectId, ref: 'Collection', index: true }
+			]
 		},
 		{ timestamps: true, toObject: { setters: true } }
 	)
