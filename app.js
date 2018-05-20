@@ -1,6 +1,7 @@
 const start = Date.now()
 require('dotenv').config() // load before express to set bootup mode
 require('./lib/passport') // user authentication
+validator = require('validator') // needs to be global for user validation code
 
 const express = require('express'),
 	app = express(),
@@ -15,8 +16,6 @@ const express = require('express'),
 	RedisStore = require('connect-redis')(session),
 	log = require('./lib/logger'),
 	{ link } = require('./lib/middleware')
-
-validator = require('validator') // needs to be global for user validation code
 
 mongoose.connect(process.env.MONGODB_URI)
 mongoose.connection.on('error', err => {
