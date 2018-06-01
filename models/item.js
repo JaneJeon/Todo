@@ -1,19 +1,16 @@
 const mongoose = require('mongoose'),
-	itemSchema = new mongoose.Schema(
-		{
-			name: {
-				type: String,
-				trim: true,
-				required: true
-			},
-			description: String,
-			completed: Boolean,
-			important: Boolean,
-			due: Date,
-			children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+	itemSchema = new mongoose.Schema({
+		name: {
+			type: String,
+			trim: true,
+			required: true
 		},
-		{ timestamps: true }
-	)
+		description: String,
+		completed: Boolean,
+		important: Boolean,
+		due: Date,
+		children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+	})
 
 itemSchema.index(
 	{
@@ -36,5 +33,13 @@ const autoPopulate = function(next) {
 
 itemSchema.pre('find', autoPopulate)
 itemSchema.pre('findOne', autoPopulate)
+
+itemSchema.moveTo = async function(parent) {
+	if (parent) {
+		//
+	} else {
+		// we've moved to a top level
+	}
+}
 
 module.exports = mongoose.model('Item', itemSchema)

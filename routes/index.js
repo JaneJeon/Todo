@@ -1,7 +1,6 @@
 const router = require('express').Router(),
 	passport = require('passport'),
-	User = require('../models/user'),
-	{ capitalize, get } = require('lodash')
+	User = require('../models/user')
 
 router.get('/', (req, res) => {
 	req.isAuthenticated() ? res.page('welcome') : res.redirect('/login')

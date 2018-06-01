@@ -8,6 +8,9 @@ const express = require('express'),
 	bodyParser = require('body-parser'),
 	chalk = require('chalk'),
 	debug = require('debug'),
+	heartbeat = debug('♥' + '\uFEFF'.repeat(3)),
+	serverLog = debug('server'),
+	filesize = require('filesize'),
 	hbs = require('hbs'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
@@ -19,7 +22,7 @@ const express = require('express'),
 
 mongoose.connect(process.env.MONGODB_URI)
 mongoose.connection.on('error', err => {
-	debug('server')(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
+	serverLog(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
 	process.exit(1)
 })
 
@@ -77,12 +80,18 @@ app /*---------- middlewares ----------*/
 
 const server = app.listen(process.env.PORT, err => {
 	if (err) {
-		debug('server')(`${chalk.red('✗')} cannot start server: ${err}`)
+		serverLog(`${chalk.red('✗')} cannot start server: ${err}`)
 		process.exit(2)
 	}
 
-	debug('server')(`${chalk.green('✓')} running on port ${server.address().port}`)
-	debug('server')(`started in ${Date.now() - start} ms`)
+	serverLog(`${chalk.green('✓')} running on port ${server.address().port}`)
+	serverLog(`⏱ started in ${Date.now() - start} ms`)
 })
 
 module.exports = server
+
+// heartbeat (and heap) logging
+setInterval(
+	() => heartbeat(filesize(process.memoryUsage().heapUsed)),
+	process.env.HEARTBEAT_INTERVAL * 1000
+)

@@ -4,7 +4,7 @@
 	"description": "a todo-app for my personal use",
 	"main": "app.js",
 	"author": "Jane Jeon",
-	"license": "Apache2",
+	"license": "Apache-2.0",
 	"private": true,
 	"homepage": "http://jane-todo.herokuapp.com",
 	"repository": {
@@ -23,6 +23,7 @@
 		"dotenv": "^5.0.1",
 		"express": "^4.16.3",
 		"express-session": "^1.15.6",
+		"filesize": "^3.6.1",
 		"hbs": "^4.0.1",
 		"helmet": "^3.12.0",
 		"lodash": "^4.17.10",
