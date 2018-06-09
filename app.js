@@ -10,7 +10,6 @@ const express = require('express'),
 	debug = require('debug'),
 	heartbeat = debug('♥' + '\uFEFF'.repeat(3)),
 	serverLog = debug('server'),
-	filesize = require('filesize'),
 	hbs = require('hbs'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
@@ -28,8 +27,7 @@ mongoose.connection.on('error', err => {
 
 hbs.registerPartials(path.join(__dirname, 'views/partials')) // templating
 
-app /*---------- middlewares ----------*/
-	.use(require('helmet')())
+app.use(require('helmet')())
 	.use(require('cors')())
 	.use(bodyParser.json()) // AJAX requests
 	.use(bodyParser.urlencoded({ extended: false })) // HTTP requests
@@ -90,8 +88,5 @@ const server = app.listen(process.env.PORT, err => {
 
 module.exports = server
 
-// heartbeat (and heap) logging
-setInterval(
-	() => heartbeat(filesize(process.memoryUsage().heapUsed)),
-	process.env.HEARTBEAT_INTERVAL * 1000
-)
+// heartbeat logging
+setInterval(() => heartbeat(''), process.env.HEARTBEAT_INTERVAL * 1000)

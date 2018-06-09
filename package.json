@@ -12,7 +12,6 @@
 		"url": "https://github.com/JaneJeon/todo.git"
 	},
 	"dependencies": {
-		"bcrypt": "^2.0.1",
 		"body-parser": "^1.18.2",
 		"chalk": "^2.4.1",
 		"connect-flash": "^0.1.1",
@@ -23,14 +22,16 @@
 		"dotenv": "^5.0.1",
 		"express": "^4.16.3",
 		"express-session": "^1.15.6",
-		"filesize": "^3.6.1",
 		"hbs": "^4.0.1",
 		"helmet": "^3.12.0",
+		"knex": "^0.14.6",
 		"lodash": "^4.17.10",
-		"mongoose": "^5.1.0",
 		"morgan": "^1.9.0",
+		"objection": "^1.1.10",
+		"objection-password-argon2": "^1.1.0",
 		"passport": "^0.4.0",
 		"passport-local": "^1.0.0",
+		"pg": "^7.4.3",
 		"redis": "^2.8.0",
 		"validator": "^10.1.0"
 	},
