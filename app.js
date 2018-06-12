@@ -7,23 +7,13 @@ const express = require('express'),
 	app = express(),
 	bodyParser = require('body-parser'),
 	chalk = require('chalk'),
-	debug = require('debug'),
-	heartbeat = debug('♥' + '\uFEFF'.repeat(3)),
-	serverLog = debug('server'),
 	hbs = require('hbs'),
-	mongoose = require('mongoose'),
 	passport = require('passport'),
 	path = require('path'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
 	log = require('./lib/logger'),
 	{ link } = require('./lib/middleware')
-
-mongoose.connect(process.env.MONGODB_URI)
-mongoose.connection.on('error', err => {
-	serverLog(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
-	process.exit(1)
-})
 
 hbs.registerPartials(path.join(__dirname, 'views/partials')) // templating
 
@@ -64,29 +54,36 @@ app.use(require('helmet')())
 	/*---------- routes ----------*/
 	.use('/', require('./routes/index'))
 	/*---------- route error handler ----------*/
-	.use('*', (req, res) =>
+	.use('*', (_, res) =>
 		// do not pass to application error handler,
 		// since that's reserved for uncaught Exceptions only
 		res.status(404).page('404')
 	)
 	/*---------- application error handler ----------*/
 	// need all 4 params to be recognized as error handler
-	.use((err, req, res, next) => {
+	.use((err, _, res, _) => {
 		log.error(err)
 		res.status(500).page('500')
 	})
 
-const server = app.listen(process.env.PORT, err => {
+const server = app.listen(process.env.PORT, async err => {
 	if (err) {
-		serverLog(`${chalk.red('✗')} cannot start server: ${err}`)
+		log.server(`${chalk.red('✗')} cannot start server: ${err}`)
+		process.exit(1)
+	}
+
+	try {
+		await require('./lib/db').sync()
+	} catch (err) {
+		log.server(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
 		process.exit(2)
 	}
 
-	serverLog(`${chalk.green('✓')} running on port ${server.address().port}`)
-	serverLog(`⏱ started in ${Date.now() - start} ms`)
+	log.server(`${chalk.green('✓')} running on port ${server.address().port}`)
+	log.server(`⏱ started in ${Date.now() - start} ms`)
 })
 
 module.exports = server
 
 // heartbeat logging
-setInterval(() => heartbeat(''), process.env.HEARTBEAT_INTERVAL * 1000)
+setInterval(() => log.heartbeat(''), process.env.HEARTBEAT_INTERVAL * 1000)

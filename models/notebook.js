@@ -1,3 +1,28 @@
+const Sequelize = require('sequelize'),
+	Notebook = require('../lib/db').define('Notebook', {
+		creator: {
+			// TODO: reference
+		},
+		name: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			validate: {
+				notEmpty: true
+			},
+			set(name) {
+				this.setDataValue('name', name.trim())
+			}
+		},
+		public: {
+			type: Sequelize.BOOLEAN,
+			defaultValue: false
+		}
+		// TODO: items
+		// TODO: collaborators
+	})
+
+module.exports = Notebook
+
 const mongoose = require('mongoose'),
 	User = require('./user'),
 	notebookSchema = new mongoose.Schema(

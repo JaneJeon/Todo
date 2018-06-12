@@ -1,49 +1,53 @@
-const mongoose = require('mongoose'),
-	bcrypt = require('bcrypt'),
-	check = require('../lib/check'),
-	Notebook = require('./notebook'),
-	userSchema = new mongoose.Schema({
-		name: {
-			type: String,
-			default: process.env.DEFAULT_NAME,
-			// disallow whitespace strings
-			set: name => name.trim() || process.env.DEFAULT_NAME
+const Sequelize = require('sequelize'),
+	{ compare, hash } = require('bcrypt'),
+	{ minPassword, maxPassword } = require('../lib/check'),
+	hashPassword = async user => {
+		if (user.changed('password'))
+			user.password = await hash(user.password, process.env.SALT_ROUNDS)
+	},
+	User = require('../lib/db').define(
+		'User',
+		{
+			name: {
+				type: Sequelize.STRING,
+				allowNull: false,
+				defaultValue: process.env.DEFAULT_NAME,
+				validate: {
+					notEmpty: true
+				},
+				set(name) {
+					this.setDataValue('name', name.trim())
+				}
+			},
+			email: {
+				type: Sequelize.STRING,
+				unique: true,
+				allowNull: false,
+				validate: {
+					isEmail: true
+				},
+				set(email) {
+					this.setDataValue('email', validator.normalizeEmail(email))
+				}
+			},
+			password: {
+				type: Sequelize.STRING,
+				allowNull: false,
+				validate: {
+					len: [minPassword, maxPassword]
+				}
+			}
 		},
-		email: {
-			type: String,
-			unique: true,
-			required: true,
-			validate: email => check.email(email) == null,
-			set: email => validator.normalizeEmail(email)
-		},
-		password: {
-			type: String,
-			required: true,
-			validate: password => check.password(password) == null,
-			select: false
+		{
+			hooks: {
+				beforeCreate: hashPassword,
+				beforeUpdate: hashPassword
+			}
 		}
-	})
+	)
 
-userSchema.pre('save', async function() {
-	if (this.isModified('password'))
-		this.password = await bcrypt.hash(this.password, process.env.SALT_ROUNDS)
-})
-
-userSchema.methods.checkPassword = async function(password) {
-	return bcrypt.compare(password, this.password)
+User.prototype.validatePassword = async function(password) {
+	return compare(password, this.password)
 }
 
-// recently touched notebooks
-userSchema.methods.getNotebooks = async function() {
-	return Notebook.find({ creator: this })
-		.sort({ updatedAt: -1 })
-		.exec()
-}
-
-userSchema.statics.findByEmail = async function(email, includeHash) {
-	return this.findOne({ email: validator.normalizeEmail(email) })
-		.select({ password: includeHash ? 1 : 0 })
-		.exec()
-}
-
-module.exports = mongoose.model('User', userSchema)
+module.exports = User
