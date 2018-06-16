@@ -1,36 +1,49 @@
 const start = Date.now()
 require('dotenv').config() // load before express to set bootup mode
-require('./lib/passport') // user authentication
 validator = require('validator') // needs to be global for user validation code
 
 const express = require('express'),
 	app = express(),
 	bodyParser = require('body-parser'),
 	chalk = require('chalk'),
-	debug = require('debug'),
 	hbs = require('hbs'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
+	Strategy = require('passport-local').Strategy,
+	errorMsg = 'Username and/or password does not match',
+	User = require('./models/user'),
 	path = require('path'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
 	log = require('./lib/logger'),
-	{ link } = require('./lib/middleware')
+	middleware = require('./lib/middleware')
 
 mongoose.connect(process.env.MONGODB_URI)
-mongoose.connection.on('error', err => {
-	debug('server')(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`)
-	process.exit(1)
-})
+mongoose.connection.on('error', err =>
+	log.server(`${chalk.red('✗')} cannot connect to MongoDB: ${err}`, 2)
+)
+
+passport.serializeUser((user, done) => done(null, user.id))
+passport.deserializeUser(async (id, done) => done(null, await User.findById(id)))
+passport.use(
+	new Strategy({ usernameField: 'email' }, async (email, password, done) => {
+		// check if user exists
+		const user = await User.findByEmail(email)
+		if (!user) return done(errorMsg, null)
+
+		// match password against the hash
+		return (await user.validatePassword(password))
+			? done(null, user)
+			: done(errorMsg, null)
+	})
+)
 
 hbs.registerPartials(path.join(__dirname, 'views/partials')) // templating
 
-app /*---------- middlewares ----------*/
-	.use(require('helmet')())
+app.use(require('helmet')())
 	.use(require('cors')())
 	.use(bodyParser.json()) // AJAX requests
 	.use(bodyParser.urlencoded({ extended: false })) // HTTP requests
-	.use(require('cookie-parser')(process.env.SECRET)) // flash messages
 	.use(
 		session({
 			name: 'sessionId',
@@ -46,10 +59,11 @@ app /*---------- middlewares ----------*/
 			}
 		})
 	)
-	.use(require('connect-flash')())
+	.use(require('cookie-parser')(process.env.SECRET)) // flash messages
+	.use(require('connect-flash')()) // ditto
 	.use(passport.initialize())
 	.use(passport.session())
-	.use(log.http)
+	.use(log.http) // HTTP request logger
 	/*---------- views ----------*/
 	.use(express.static(path.join(__dirname, 'public')))
 	.set('views', path.join(__dirname, 'views'))
@@ -57,7 +71,7 @@ app /*---------- middlewares ----------*/
 	/*---------- monkey patching ----------*/
 	.use((req, res, next) => {
 		delete req.session.access
-		res.page = (page, obj) => res.render(page, link(req, obj))
+		res.page = (page, obj) => res.render(page, middleware.link(req, obj))
 		next()
 	})
 	/*---------- routes ----------*/
@@ -76,13 +90,10 @@ app /*---------- middlewares ----------*/
 	})
 
 const server = app.listen(process.env.PORT, err => {
-	if (err) {
-		debug('server')(`${chalk.red('✗')} cannot start server: ${err}`)
-		process.exit(2)
-	}
+	if (err) log.server(`${chalk.red('✗')} cannot start server: ${err}`, 1)
 
-	debug('server')(`${chalk.green('✓')} running on port ${server.address().port}`)
-	debug('server')(`started in ${Date.now() - start} ms`)
+	log.server(`${chalk.green('✓')} running on port ${server.address().port}`)
+	log.server(`started in ${Date.now() - start} ms`)
 })
 
 module.exports = server

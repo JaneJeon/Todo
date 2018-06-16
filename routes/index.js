@@ -1,7 +1,6 @@
 const router = require('express').Router(),
 	passport = require('passport'),
-	User = require('../models/user'),
-	{ capitalize, get } = require('lodash')
+	User = require('../models/user')
 
 router.get('/', (req, res) => {
 	req.isAuthenticated() ? res.page('welcome') : res.redirect('/login')
@@ -16,8 +15,7 @@ router.post('/register', async (req, res) => {
 		var user = await User.create(req.body)
 	} catch (err) {
 		req.session.access = -1
-		if (err.name == 'MongoError' && err.code == 11000)
-			req.flash('error', 'Email is already taken')
+		req.flash('error', 'Email is already taken')
 
 		return res.redirect('/register')
 	}

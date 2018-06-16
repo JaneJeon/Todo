@@ -1,5 +1,5 @@
 const mongoose = require('mongoose'),
-	collectionSchema = new mongoose.Schema(
+	notebookSchema = new mongoose.Schema(
 		{
 			creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 			name: {
@@ -15,4 +15,4 @@ const mongoose = require('mongoose'),
 		{ timestamps: true }
 	)
 
-module.exports = mongoose.model('Collection', collectionSchema)
+module.exports = mongoose.model('Notebook', notebookSchema)

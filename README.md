@@ -6,7 +6,8 @@ You can see the default environment variables and their descriptions on the `.en
 
 A `Makefile` is also provided for various "modes", which you might find handy. Run `make` to boot the server in development mode, `make v` for verbose mode (in which ALL `debug` statements and any sync I/O is printed out), `make prod` for something akin to what you'd see in a production environment (specifically, Heroku), `make clean` to wipe the slate of the datastores, which is useful for `make test`. If you're piping server output to a log file, `make clear` to clear the logfiles.
 
-## Access Codes
+## Log Format
+### Access Codes
 Access levels are logged for POST requests to `/login` and `/register`, with the path + access combination indicating the following:
 - `/login 1`:
 	- User logged in successfully with existing credentials.

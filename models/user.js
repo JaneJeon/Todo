@@ -1,27 +1,26 @@
 const mongoose = require('mongoose'),
 	bcrypt = require('bcrypt'),
 	check = require('../lib/check'),
-	DEFAULT_NAME = 'User',
-	SALT_ROUNDS = 10,
+	rounds = parseInt(process.env.SALT_ROUNDS),
 	userSchema = new mongoose.Schema(
 		{
 			name: {
 				type: String,
-				default: DEFAULT_NAME,
+				default: process.env.DEFAULT_NAME,
 				// disallow whitespace strings
-				set: name => name.trim() || DEFAULT_NAME
+				set: name => name.trim() || process.env.DEFAULT_NAME
 			},
 			email: {
 				type: String,
 				unique: true,
 				required: true,
-				validate: email => check.email(this.email) == null,
+				validate: email => check.email(email) === null,
 				set: email => validator.normalizeEmail(email)
 			},
 			password: {
 				type: String,
 				required: true,
-				validate: password => check.password(this.password) == null,
+				validate: password => check.password(password) === null,
 				select: false
 			},
 			// the user's collections or the collections that the user has access to,
@@ -30,15 +29,15 @@ const mongoose = require('mongoose'),
 				{ type: mongoose.Schema.Types.ObjectId, ref: 'Collection', index: true }
 			]
 		},
-		{ timestamps: true, toObject: { setters: true } }
+		{ timestamps: true }
 	)
 
 userSchema.pre('save', async function() {
 	if (this.isModified('password'))
-		this.password = await bcrypt.hash(this.password, SALT_ROUNDS)
+		this.password = await bcrypt.hash(this.password, rounds)
 })
 
-userSchema.methods.checkPassword = async function(password) {
+userSchema.methods.validatePassword = async function(password) {
 	return bcrypt.compare(password, this.password)
 }
 
