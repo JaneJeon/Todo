@@ -29,12 +29,11 @@ passport.use(
 	new Strategy({ usernameField: 'email' }, async (email, password, done) => {
 		// check if user exists
 		const user = await User.findByEmail(email)
-		if (!user) return done(errorMsg, null)
+		if (!user) return done(null, false, { message: errorMsg })
 
 		// match password against the hash
-		return (await user.validatePassword(password))
-			? done(null, user)
-			: done(errorMsg, null)
+		if (await user.validatePassword(password)) done(null, user)
+		else done(null, false, { message: errorMsg })
 	})
 )
 
@@ -70,7 +69,6 @@ app.use(require('helmet')())
 	.set('view engine', 'hbs')
 	/*---------- monkey patching ----------*/
 	.use((req, res, next) => {
-		delete req.session.access
 		res.page = (page, obj) => res.render(page, middleware.link(req, obj))
 		next()
 	})
